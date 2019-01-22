@@ -1,7 +1,9 @@
 package com.flowly4j;
 
 import com.flowly4j.variables.ReadableVariables;
+import lombok.ToString;
 
+@ToString
 public class ExecutionResult {
 
     public String sessionId;

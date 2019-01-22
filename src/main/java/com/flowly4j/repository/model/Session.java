@@ -1,11 +1,12 @@
 package com.flowly4j.repository.model;
 
+import com.flowly4j.tasks.Task;
 import com.flowly4j.variables.Variables;
 import io.vavr.control.Option;
 import org.joda.time.DateTime;
 
 
-public class WorkflowSession {
+public class Session {
 
     public String id;
     public Variables variables;
@@ -14,7 +15,7 @@ public class WorkflowSession {
     public DateTime createAt;
     public String status;
 
-    public WorkflowSession(String id, Variables variables, Option<Execution> lastExecution, Option<Cancellation> cancellation, DateTime createAt, String status) {
+    public Session(String id, Variables variables, Option<Execution> lastExecution, Option<Cancellation> cancellation, DateTime createAt, String status) {
         this.id = id;
         this.variables = variables;
         this.lastExecution = lastExecution;
@@ -23,7 +24,7 @@ public class WorkflowSession {
         this.status = status;
     }
 
-    public WorkflowSession(String id, Variables variables) {
+    public Session(String id, Variables variables) {
         this.id = id;
         this.variables = variables;
         this.lastExecution = Option.none();
@@ -40,6 +41,10 @@ public class WorkflowSession {
                 return false;
             default: return true;
         }
+    }
+
+    public Session running(Task task, Variables variables) {
+        return new Session(id, variables, Option.of(new Execution(task.id())), cancellation, createAt, Status.RUNNING);
     }
 
 }
