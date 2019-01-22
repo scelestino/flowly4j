@@ -40,7 +40,19 @@
 
         <dependency>
             <groupId>io.vavr</groupId>
+            <artifactId>vavr-match</artifactId>
+            <version>0.10.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.vavr</groupId>
             <artifactId>vavr-match-processor</artifactId>
+            <version>0.10.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.vavr</groupId>
+            <artifactId>vavr-jackson</artifactId>
             <version>0.10.0</version>
         </dependency>
 

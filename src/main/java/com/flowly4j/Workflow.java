@@ -6,17 +6,17 @@ import com.flowly4j.errors.TaskNotFound;
 import com.flowly4j.repository.Repository;
 import com.flowly4j.repository.model.Execution;
 import com.flowly4j.repository.model.Session;
-import com.flowly4j.repository.model.Status;
 import com.flowly4j.tasks.Task;
+import com.flowly4j.tasks.results.TaskResult;
 import com.flowly4j.variables.Variables;
-import io.vavr.CheckedConsumer;
 import io.vavr.collection.HashMap;
 import io.vavr.collection.List;
-import io.vavr.control.Either;
-import io.vavr.control.Option;
-import org.joda.time.DateTime;
 
-import java.util.function.Consumer;
+import static com.flowly4j.tasks.results.TaskResultPatterns.*;
+import static io.vavr.API.$;
+import static io.vavr.API.Case;
+import static io.vavr.API.Match;
+
 
 public class Workflow {
 
@@ -40,13 +40,13 @@ public class Workflow {
         Session session = repository.get(sessionId);
 
         // Can be executed?
-        if(!session.isExecutable()) {
+        if (!session.isExecutable()) {
             throw new SessionCantBeExecuted(sessionId);
         }
 
         // Get current Task
         String taskId = session.lastExecution.map(Execution::taskId).getOrElse(initialTask.id());
-        Task currentTask = tasks().find(task -> task.id().equals(taskId)).getOrElseThrow( () -> new TaskNotFound(taskId) );
+        Task currentTask = tasks().find(task -> task.id().equals(taskId)).getOrElseThrow(() -> new TaskNotFound(taskId));
 
         // TODO: merge variables (params + session)
         Variables currentVariables = session.variables;
@@ -57,18 +57,27 @@ public class Workflow {
 
     private ExecutionResult execute(Task task, Session session, Variables variables) {
 
+        System.out.println("EXECUTING " + task.id());
+
         Session currentSession = repository.save(session.running(task, variables));
 
-        task.execute(currentSession.id, variables);
+        TaskResult taskResult = task.execute(currentSession.id, variables);
 
-        // TODO: match execute result
+        return Match(taskResult).of(
 
-        return new ExecutionResult(session.id, task.id(), variables, Status.FINISHED);
+                Case($Continue($(), $()), (nextTask, currentVariables) -> execute(nextTask, currentSession, currentVariables)),
+
+                Case($Block, () -> ExecutionResult.of(repository.save(session.blocked(task)), task)),
+
+                Case($Finish, () -> ExecutionResult.of(repository.save(session.finished(task)), task)),
+
+                Case($OnError($()), cause -> {
+                    throw new ExecutionError(cause, repository.save(session.onError(task, cause)), task);
+                })
+
+        );
 
     }
-
-
-
 
     /**
      * It returns a list of every {@link Task} in this workflow
@@ -78,8 +87,9 @@ public class Workflow {
     private List<Task> tasks() {
         return tasks(initialTask, List.empty());
     }
+
     private static List<Task> tasks(Task currentTask, List<Task> accum) {
-        return accum.contains(currentTask) ? accum : currentTask.followedBy().foldRight( accum.append(currentTask), Workflow::tasks);
+        return accum.contains(currentTask) ? accum : currentTask.followedBy().foldRight(accum.append(currentTask), Workflow::tasks);
     }
 
 }

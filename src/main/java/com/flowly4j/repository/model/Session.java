@@ -44,7 +44,27 @@ public class Session {
     }
 
     public Session running(Task task, Variables variables) {
-        return new Session(id, variables, Option.of(new Execution(task.id())), cancellation, createAt, Status.RUNNING);
+        return changeStatus(task, variables, Status.RUNNING);
+    }
+
+    public Session blocked(Task task) {
+        return changeStatus(task, variables, Status.BLOCKED);
+    }
+
+    public Session finished(Task task) {
+        return changeStatus(task, variables, Status.FINISHED);
+    }
+
+    public Session onError(Task task, Throwable throwable) {
+        return changeStatus(task, variables, Status.ERROR);
+    }
+
+    public Session cancelled(String reason) {
+        return new Session(id, variables, lastExecution, Option.of(new Cancellation(reason)), createAt, Status.CANCELLED);
+    }
+
+    private Session changeStatus(Task task, Variables variables, String status) {
+        return new Session(id, variables, Option.of(new Execution(task.id())), cancellation, createAt, status);
     }
 
 }

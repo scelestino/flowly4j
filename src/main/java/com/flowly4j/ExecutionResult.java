@@ -1,5 +1,7 @@
 package com.flowly4j;
 
+import com.flowly4j.repository.model.Session;
+import com.flowly4j.tasks.Task;
 import com.flowly4j.variables.ReadableVariables;
 import lombok.ToString;
 
@@ -16,6 +18,10 @@ public class ExecutionResult {
         this.taskId = taskId;
         this.variables = variables;
         this.status = status;
+    }
+
+    public static ExecutionResult of(Session session, Task task) {
+        return new ExecutionResult(session.id, task.id(), session.variables, session.status);
     }
 
 }
