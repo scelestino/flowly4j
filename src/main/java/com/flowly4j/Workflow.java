@@ -29,58 +29,46 @@ public class Workflow {
         this.repository = repository;
     }
 
-    public Either<Throwable, String> init(/* params */) {
+    public String init(/* params */) {
         // TODO: init session with params and return session id
-        return Either.right("123");
+        return repository.create(new Variables(HashMap.empty())).id;
     }
 
-    public Either<Throwable, ExecutionResult> execute(String sessionId /* params */) {
+    public ExecutionResult execute(String sessionId /* params */) {
 
-        // Get Session, can be executed?
-        return getSession(sessionId).filterOrElse(Session::isExecutable, session -> new SessionCantBeExecuted(sessionId)).flatMap(session -> {
+        // Get Session
+        Session session = repository.get(sessionId);
 
-            // Get current Task
-            String taskId = session.lastExecution.map(Execution::taskId).getOrElse(initialTask.id());
+        // Can be executed?
+        if(!session.isExecutable()) {
+            throw new SessionCantBeExecuted(sessionId);
+        }
 
-            // Get the task to execute
-            return task(taskId).flatMap( currentTask -> {
-                // TODO: Merge params with variables
-                return execute(currentTask, session, session.variables);
-            });
+        // Get current Task
+        String taskId = session.lastExecution.map(Execution::taskId).getOrElse(initialTask.id());
+        Task currentTask = tasks().find(task -> task.id().equals(taskId)).getOrElseThrow( () -> new TaskNotFound(taskId) );
 
-        });
+        // TODO: merge variables (params + session)
+        Variables currentVariables = session.variables;
+
+        return execute(currentTask, session, currentVariables);
 
     }
 
-    private Either<Throwable, ExecutionResult> execute(Task task, Session session, Variables variables) {
+    private ExecutionResult execute(Task task, Session session, Variables variables) {
 
-        Consumer<Throwable> onFailure = cause -> Either.left(new ExecutionError(cause, session, task));
+        Session currentSession = repository.save(session.running(task, variables));
 
-        Consumer<Session> onSuccess = s -> {
-            Either.right(new ExecutionResult(s.id, task.id(), variables, Status.FINISHED));
-        };
+        task.execute(currentSession.id, variables);
 
-        repository.save(session.running(task, variables)).fold(onFailure, onSuccess);
+        // TODO: match execute result
 
-        System.out.println("EXECUTING... " + task.id());
-        return Either.left(new RuntimeException("NOT IMPLEMENTED"));
-//        return Either.right(new ExecutionResult(session.id, task.id(), variables, "STATUS"));
+        return new ExecutionResult(session.id, task.id(), variables, Status.FINISHED);
+
     }
 
-    /// TODO: ir a buscar al repo
-    private Either<Throwable, Session> getSession(String sessionId) {
-        return Either.right(new Session("123", new Variables(HashMap.empty()), Option.of(new Execution("ExecutionTaskB")), Option.none(), DateTime.now(), "" ));
-    }
 
-    /**
-     *
-     *
-     * @param taskId
-     * @return
-     */
-    private Either<Throwable, Task> task(String taskId) {
-        return tasks().find(task -> task.id().equals(taskId)).toEither(new TaskNotFound(taskId));
-    }
+
 
     /**
      * It returns a list of every {@link Task} in this workflow

@@ -18,8 +18,9 @@ public class App {
 
         Workflow workflow = new WorkflowA();
 
+        String sessionId = workflow.init();
 
-        Either<Throwable, ExecutionResult> result = workflow.init().flatMap(workflow::execute);
+        ExecutionResult result = workflow.execute(sessionId);
 
 
         System.out.println( result );
