@@ -42,4 +42,8 @@ public class Variables implements ReadableVariables {
         return new Variables(this.underlying.remove(key.identifier()));
     }
 
+    public Variables merge(Variables variables) {
+        return new Variables(variables.underlying.merge(underlying));
+    }
+
 }

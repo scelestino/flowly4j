@@ -2,6 +2,7 @@ package com.flowly4j;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.flowly4j.demo.CustomKeys;
 import com.flowly4j.demo.ExecutionTaskA;
 import com.flowly4j.demo.ExecutionTaskB;
 import com.flowly4j.demo.WorkflowA;
@@ -34,11 +35,11 @@ public class App {
         Map map = objectMapper.readValue(json, Map.class);
 
 
-//        Workflow workflow = new WorkflowA();
-//
-//        String sessionId = workflow.init();
-//
-//        ExecutionResult result = workflow.execute(sessionId);
+        Workflow workflow = new WorkflowA();
+
+        String sessionId = workflow.init(Param.of(CustomKeys.KEY1, "asd"), Param.of(CustomKeys.KEY2, 123));
+
+        ExecutionResult result = workflow.execute(sessionId);
 
 
         System.out.println(json);
@@ -51,6 +52,10 @@ public class App {
 
 
         System.out.println(persona);
+
+
+        Param.of(CustomKeys.KEY1, "asd");
+        Param.of(CustomKeys.KEY2, 123);
 
 //        System.out.println( result );
 

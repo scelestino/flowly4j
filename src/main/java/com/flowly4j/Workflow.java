@@ -29,12 +29,11 @@ public class Workflow {
         this.repository = repository;
     }
 
-    public String init(/* params */) {
-        // TODO: init session with params and return session id
-        return repository.create(new Variables(HashMap.empty())).id;
+    public String init(Param ...params) {
+        return repository.create(new Variables(List.of(params).toMap(Param::toTuple))).id;
     }
 
-    public ExecutionResult execute(String sessionId /* params */) {
+    public ExecutionResult execute(String sessionId, Param ...params) {
 
         // Get Session
         Session session = repository.get(sessionId);
@@ -48,8 +47,8 @@ public class Workflow {
         String taskId = session.lastExecution.map(Execution::taskId).getOrElse(initialTask.id());
         Task currentTask = tasks().find(task -> task.id().equals(taskId)).getOrElseThrow(() -> new TaskNotFound(taskId));
 
-        // TODO: merge variables (params + session)
-        Variables currentVariables = session.variables;
+        // Merge old with new variables
+        Variables currentVariables = session.variables.merge(new Variables(List.of(params).toMap(Param::toTuple)));
 
         return execute(currentTask, session, currentVariables);
 
