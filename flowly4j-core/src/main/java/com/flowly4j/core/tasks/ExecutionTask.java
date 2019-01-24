@@ -1,6 +1,6 @@
 package com.flowly4j.core.tasks;
 
-import com.flowly4j.core.variables.Variables;
+import com.flowly4j.core.context.ExecutionContext;
 import com.flowly4j.core.tasks.results.Continue;
 import com.flowly4j.core.tasks.results.OnError;
 import com.flowly4j.core.tasks.results.TaskResult;
@@ -14,12 +14,13 @@ public abstract class ExecutionTask extends Task {
 
     public abstract Task next();
 
-    protected abstract Variables perform(String sessionId, Variables variables);
+    protected abstract void perform(ExecutionContext executionContext);
 
     @Override
-    public TaskResult execute(String sessionId, Variables variables) {
+    public TaskResult execute(ExecutionContext executionContext) {
         try {
-            return new Continue(next(), perform(sessionId, variables));
+            perform(executionContext);
+            return new Continue(next());
         } catch (Throwable throwable) {
             return new OnError(throwable);
         }

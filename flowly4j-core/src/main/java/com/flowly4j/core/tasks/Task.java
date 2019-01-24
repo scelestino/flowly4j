@@ -1,6 +1,6 @@
 package com.flowly4j.core.tasks;
 
-import com.flowly4j.core.variables.Variables;
+import com.flowly4j.core.context.ExecutionContext;
 import com.flowly4j.core.tasks.results.TaskResult;
 import io.vavr.collection.List;
 
@@ -18,7 +18,7 @@ public abstract class Task {
         return this.getClass().getSimpleName();
     }
 
-    public abstract TaskResult execute(String sessionId, Variables variables);
+    public abstract TaskResult execute(ExecutionContext executionContext);
 
     public abstract List<Task> followedBy();
 

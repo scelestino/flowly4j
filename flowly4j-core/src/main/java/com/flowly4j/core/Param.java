@@ -1,8 +1,6 @@
 package com.flowly4j.core;
 
-import com.flowly4j.core.variables.Key;
-import io.vavr.Tuple;
-import io.vavr.Tuple2;
+import com.flowly4j.core.context.Key;
 
 public class Param {
 
@@ -16,10 +14,6 @@ public class Param {
 
     public static <T> Param of(Key<T> key, T value) {
         return new Param(key.identifier(), value);
-    }
-
-    public static Tuple2<String, Object> toTuple(Param param) {
-        return Tuple.of(param.key, param.value);
     }
 
 }

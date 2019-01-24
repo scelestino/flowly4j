@@ -4,8 +4,8 @@ import org.joda.time.DateTime;
 
 public class Execution {
 
-    public String taskId;
-    public DateTime at;
+    public final String taskId;
+    public final DateTime at;
 
     public Execution(String taskId, DateTime at) {
         this.taskId = taskId;

@@ -1,17 +1,39 @@
 package com.flowly4j.core.repository.model;
 
-public class Status {
+public enum Status {
 
-    public static final String CREATED = "CREATED";
+    CREATED {
+        @Override
+        public Boolean isExecutable() {
+            return true;
+        }
+    }, RUNNING {
+        @Override
+        public Boolean isExecutable() {
+            return false;
+        }
+    }, ERROR {
+        @Override
+        public Boolean isExecutable() {
+            return true;
+        }
+    }, FINISHED {
+        @Override
+        public Boolean isExecutable() {
+            return false;
+        }
+    }, BLOCKED {
+        @Override
+        public Boolean isExecutable() {
+            return true;
+        }
+    }, CANCELLED {
+        @Override
+        public Boolean isExecutable() {
+            return false;
+        }
+    };
 
-    public static final String RUNNING = "RUNNING";
-
-    public static final String ERROR = "ERROR";
-
-    public static final String FINISHED = "FINISHED";
-
-    public static final String BLOCKED = "BLOCKED";
-
-    public static final String CANCELLED = "CANCELLED";
+    public abstract Boolean isExecutable();
 
 }

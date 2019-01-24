@@ -3,12 +3,12 @@ package com.flowly4j.core;
 import com.flowly4j.core.errors.ExecutionError;
 import com.flowly4j.core.errors.SessionCantBeExecuted;
 import com.flowly4j.core.errors.TaskNotFound;
+import com.flowly4j.core.context.ExecutionContext;
 import com.flowly4j.core.repository.Repository;
 import com.flowly4j.core.repository.model.Execution;
 import com.flowly4j.core.repository.model.Session;
 import com.flowly4j.core.tasks.Task;
 import com.flowly4j.core.tasks.results.TaskResult;
-import com.flowly4j.core.variables.Variables;
 import io.vavr.collection.List;
 
 import static com.flowly4j.core.tasks.results.TaskResultPatterns.*;
@@ -29,7 +29,8 @@ public class Workflow {
     }
 
     public String init(Param ...params) {
-        return repository.create(new Variables(List.of(params).toMap(Param::toTuple))).id;
+        // TODO: use params
+        return repository.create().id;
     }
 
     public ExecutionResult execute(String sessionId, Param ...params) {
@@ -46,31 +47,33 @@ public class Workflow {
         String taskId = session.lastExecution.map(Execution::taskId).getOrElse(initialTask.id());
         Task currentTask = tasks().find(task -> task.id().equals(taskId)).getOrElseThrow(() -> new TaskNotFound(taskId));
 
-        // Merge old with new variables
-        Variables currentVariables = session.variables.merge(new Variables(List.of(params).toMap(Param::toTuple)));
+        // Create Execution Context
+        ExecutionContext executionContext = ExecutionContext.of(session, params);
 
-        return execute(currentTask, session, currentVariables);
+        return execute(currentTask, session, executionContext);
 
     }
 
-    private ExecutionResult execute(Task task, Session session, Variables variables) {
+    private ExecutionResult execute(Task task, Session session, ExecutionContext executionContext) {
 
         System.out.println("EXECUTING " + task.id());
 
-        Session currentSession = repository.save(session.running(task, variables));
+        // Set the session as running
+        Session currentSession = repository.save(session.running(task));
 
-        TaskResult taskResult = task.execute(currentSession.id, variables);
+        // Execute the current task
+        TaskResult taskResult = task.execute(executionContext);
 
         return Match(taskResult).of(
 
-                Case($Continue($(), $()), (nextTask, currentVariables) -> execute(nextTask, currentSession, currentVariables)),
+                Case($Continue($()), nextTask -> execute(nextTask, currentSession, executionContext)),
 
-                Case($Block, () -> ExecutionResult.of(repository.save(session.blocked(task)), task)),
+                Case($Block, () -> ExecutionResult.of(repository.save(currentSession.blocked(task)), task)),
 
-                Case($Finish, () -> ExecutionResult.of(repository.save(session.finished(task)), task)),
+                Case($Finish, () -> ExecutionResult.of(repository.save(currentSession.finished(task)), task)),
 
                 Case($OnError($()), cause -> {
-                    throw new ExecutionError(cause, repository.save(session.onError(task, cause)), task);
+                    throw new ExecutionError(cause, repository.save(currentSession.onError(task, cause)), task);
                 })
 
         );

@@ -1,7 +1,6 @@
 package com.flowly4j.core.tasks;
 
-import com.flowly4j.core.variables.ReadableVariables;
-import com.flowly4j.core.variables.Variables;
+import com.flowly4j.core.context.ExecutionContext;
 import com.flowly4j.core.tasks.results.Block;
 import com.flowly4j.core.tasks.results.Continue;
 import com.flowly4j.core.tasks.results.OnError;
@@ -16,14 +15,14 @@ import io.vavr.collection.List;
  */
 public abstract class BlockingTask extends Task {
 
-    public abstract Boolean condition(ReadableVariables variables);
+    public abstract Boolean condition(ExecutionContext executionContext);
 
     public abstract Task next();
 
     @Override
-    public TaskResult execute(String sessionId, Variables variables) {
+    public TaskResult execute(ExecutionContext executionContext) {
         try {
-            return condition(variables) ? new Continue(next(), variables) : new Block();
+            return condition(executionContext) ? new Continue(next()) : new Block();
         } catch (Throwable throwable) {
             return new OnError(throwable);
         }

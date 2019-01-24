@@ -1,18 +1,15 @@
-package com.flowly4j.core.variables;
+package com.flowly4j.core.context;
 
-import io.vavr.Function0;
 import io.vavr.control.Option;
 
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 
-/**
- * Read-only interface of Variables
- */
-public interface ReadableVariables {
+public interface ExecutionVariables {
 
     <T> Option<T> get(Key<T> key);
 
-    <T> T getOrElse(Key<T> key, Function0<T> orElse);
+    <T> T getOrElse(Key<T> key, Supplier<T> orElse);
 
     Boolean contains(Key<?> key);
 

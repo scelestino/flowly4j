@@ -1,6 +1,5 @@
 package com.flowly4j.core.tasks.results;
 
-import com.flowly4j.core.variables.Variables;
 import com.flowly4j.core.tasks.Task;
 import lombok.ToString;
 
@@ -10,10 +9,11 @@ import lombok.ToString;
  */
 @ToString
 public class Continue implements TaskResult {
-    Task nextTask;
-    Variables variables;
-    public Continue(Task nextTask, Variables variables) {
+
+    public final Task nextTask;
+
+    public Continue(Task nextTask) {
         this.nextTask = nextTask;
-        this.variables = variables;
     }
+
 }

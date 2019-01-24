@@ -1,7 +1,6 @@
 package com.flowly4j.core.tasks;
 
-import com.flowly4j.core.variables.ReadableVariables;
-import com.flowly4j.core.variables.Variables;
+import com.flowly4j.core.context.ExecutionContext;
 import com.flowly4j.core.errors.DisjunctionTaskError;
 import com.flowly4j.core.tasks.results.Continue;
 import com.flowly4j.core.tasks.results.OnError;
@@ -28,15 +27,15 @@ public abstract class DisjunctionTask extends Task {
         this.branches = branches;
     }
 
-    public DisjunctionTask(Task ifTrue, Task ifFalse, Function1<ReadableVariables, Boolean> condition) {
+    public DisjunctionTask(Task ifTrue, Task ifFalse, Function1<ExecutionContext, Boolean> condition) {
         this.branches = List.of(new Branch(condition, ifTrue), new Branch(c -> true, ifFalse));
     }
 
     @Override
-    public TaskResult execute(String sessionId, Variables variables) {
+    public TaskResult execute(ExecutionContext executionContext) {
         try {
-            return Match(next(variables)).of(
-                Case($Some($()), next -> new Continue(next, variables) ),
+            return Match(next(executionContext)).of(
+                Case($Some($()), Continue::new),
                 Case($(), new OnError(new DisjunctionTaskError()))
             );
         } catch (Throwable throwable) {
@@ -49,14 +48,14 @@ public abstract class DisjunctionTask extends Task {
         return branches.map(branch -> branch.task);
     }
 
-    private Option<Task> next(Variables variables) {
-        return branches.find( branch -> branch.condition.apply(variables) ).map( branch -> branch.task );
+    private Option<Task> next(ExecutionContext executionContext) {
+        return branches.find( branch -> branch.condition.apply(executionContext) ).map( branch -> branch.task );
     }
 
     public static class Branch {
-        Function1<ReadableVariables, Boolean> condition;
-        Task task;
-        public Branch(Function1<ReadableVariables, Boolean> condition, Task task) {
+        public final Function1<ExecutionContext, Boolean> condition;
+        public final Task task;
+        Branch(Function1<ExecutionContext, Boolean> condition, Task task) {
             this.condition = condition;
             this.task = task;
         }

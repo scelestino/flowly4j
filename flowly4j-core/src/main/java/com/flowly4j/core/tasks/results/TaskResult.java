@@ -1,11 +1,9 @@
 package com.flowly4j.core.tasks.results;
 
 import com.flowly4j.core.tasks.Task;
-import com.flowly4j.core.variables.Variables;
 import io.vavr.Tuple;
 import io.vavr.Tuple0;
 import io.vavr.Tuple1;
-import io.vavr.Tuple2;
 import io.vavr.match.annotation.Unapply;
 
 /**
@@ -15,8 +13,8 @@ import io.vavr.match.annotation.Unapply;
 public interface TaskResult {
 
     @Unapply
-    static Tuple2<Task, Variables> Continue(Continue result) {
-        return Tuple.of(result.nextTask, result.variables);
+    static Tuple1<Task> Continue(Continue result) {
+        return Tuple.of(result.nextTask);
     }
 
     @Unapply

@@ -1,7 +1,7 @@
 package com.flowly4j.core.tasks;
 
 
-import com.flowly4j.core.variables.Variables;
+import com.flowly4j.core.context.ExecutionContext;
 import com.flowly4j.core.tasks.results.Finish;
 import com.flowly4j.core.tasks.results.TaskResult;
 import io.vavr.collection.List;
@@ -17,13 +17,13 @@ import io.vavr.collection.List;
 public abstract class FinishTask extends Task {
 
     @Override
-    public TaskResult execute(String sessionId, Variables variables) {
+    public TaskResult execute(ExecutionContext executionContext) {
         return new Finish();
     }
 
     @Override
     public List<Task> followedBy() {
-        return List.Nil.instance();
+        return List.empty();
     }
 
 }

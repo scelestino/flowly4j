@@ -8,7 +8,7 @@ import lombok.ToString;
  */
 @ToString
 public class OnError implements TaskResult {
-    Throwable cause;
+    public final Throwable cause;
     public OnError(Throwable cause) {
         this.cause = cause;
     }
