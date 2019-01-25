@@ -1,4 +1,4 @@
-package com.flowly4j.core.repository.model;
+package com.flowly4j.core.session;
 
 import com.flowly4j.core.tasks.Task;
 import io.vavr.control.Option;
@@ -6,11 +6,14 @@ import org.joda.time.DateTime;
 
 public class Execution {
 
-    public final String taskId;
-    public final DateTime at;
-    public final Option<String> message;
+    public String taskId;
+    public DateTime at;
+    public Option<String> message;
 
-    private Execution(String taskId, DateTime at,  Option<String> message) {
+    public Execution() {
+    }
+
+    private Execution(String taskId, DateTime at, Option<String> message) {
         this.taskId = taskId;
         this.at = at;
         this.message = message;

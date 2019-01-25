@@ -5,7 +5,7 @@ import com.flowly4j.core.errors.SessionCantBeExecuted;
 import com.flowly4j.core.errors.TaskNotFound;
 import com.flowly4j.core.context.ExecutionContext;
 import com.flowly4j.core.repository.Repository;
-import com.flowly4j.core.repository.model.Session;
+import com.flowly4j.core.session.Session;
 import com.flowly4j.core.tasks.Task;
 import com.flowly4j.core.tasks.results.TaskResult;
 import io.vavr.collection.List;
@@ -33,7 +33,8 @@ public class Workflow {
      * Initialize a new workflow session
      */
     public String init(Param... params) {
-        return repository.save(Session.of(UUID.randomUUID().toString(), params))._id;
+        return repository.save(Session.of(UUID.randomUUID().toString(), params)).id;
+//        return repository.save(Session.of(null, params)).id;
     }
 
     /**

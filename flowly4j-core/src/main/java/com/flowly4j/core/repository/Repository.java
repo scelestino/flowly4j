@@ -1,6 +1,6 @@
 package com.flowly4j.core.repository;
 
-import com.flowly4j.core.repository.model.Session;
+import com.flowly4j.core.session.Session;
 
 public interface Repository {
 

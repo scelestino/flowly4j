@@ -27,6 +27,10 @@ public abstract class DisjunctionTask extends Task {
         this.branches = branches;
     }
 
+    public DisjunctionTask(Branch ...branches) {
+        this.branches = List.of(branches);
+    }
+
     public DisjunctionTask(Task ifTrue, Task ifFalse, Function1<ExecutionContext, Boolean> condition) {
         this.branches = List.of(new Branch(condition, ifTrue), new Branch(c -> true, ifFalse));
     }
@@ -55,7 +59,7 @@ public abstract class DisjunctionTask extends Task {
     public static class Branch {
         public final Function1<ExecutionContext, Boolean> condition;
         public final Task task;
-        Branch(Function1<ExecutionContext, Boolean> condition, Task task) {
+        public Branch(Function1<ExecutionContext, Boolean> condition, Task task) {
             this.condition = condition;
             this.task = task;
         }

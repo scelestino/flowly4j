@@ -2,7 +2,7 @@ package com.flowly4j.core.context;
 
 import com.flowly4j.core.Json;
 import com.flowly4j.core.Param;
-import com.flowly4j.core.repository.model.Session;
+import com.flowly4j.core.session.Session;
 import io.vavr.Tuple;
 import io.vavr.collection.List;
 import io.vavr.collection.Map;
@@ -51,7 +51,7 @@ public class ExecutionContext implements TaskExecutionContext {
 
     public static ExecutionContext of(Session session, Param... params) {
         Map<String, Object> variables = List.of(params).toMap(p -> Tuple.of(p.key, p.value)).merge(session.variables);
-        return new ExecutionContext(session._id, variables);
+        return new ExecutionContext(session.id, variables);
     }
 
 }

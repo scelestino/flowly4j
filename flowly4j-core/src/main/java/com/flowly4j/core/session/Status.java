@@ -1,4 +1,4 @@
-package com.flowly4j.core.repository.model;
+package com.flowly4j.core.session;
 
 public enum Status {
 

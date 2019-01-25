@@ -1,7 +1,7 @@
 package com.flowly4j.core;
 
-import com.flowly4j.core.repository.model.Session;
-import com.flowly4j.core.repository.model.Status;
+import com.flowly4j.core.session.Session;
+import com.flowly4j.core.session.Status;
 import com.flowly4j.core.tasks.Task;
 import lombok.ToString;
 
@@ -23,7 +23,7 @@ public class ExecutionResult {
     }
 
     public static ExecutionResult of(Session session, Task task) {
-        return new ExecutionResult(session._id, task.id(), session.status);
+        return new ExecutionResult(session.id, task.id(), session.status);
     }
 
 }

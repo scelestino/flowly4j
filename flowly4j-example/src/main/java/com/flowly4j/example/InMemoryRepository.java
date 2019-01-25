@@ -2,7 +2,7 @@ package com.flowly4j.example;
 
 import com.flowly4j.core.errors.SessionNotFound;
 import com.flowly4j.core.repository.Repository;
-import com.flowly4j.core.repository.model.Session;
+import com.flowly4j.core.session.Session;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -21,7 +21,7 @@ public class InMemoryRepository implements Repository {
 
     @Override
     public Session save(Session session) {
-        storage.put(session._id, session);
+        storage.put(session.id, session);
         return session;
     }
 

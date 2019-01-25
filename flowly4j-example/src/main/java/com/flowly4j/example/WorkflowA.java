@@ -7,6 +7,7 @@ public class WorkflowA extends Workflow {
 
     public WorkflowA() {
         super(new ExecutionTaskA(), new MongoDBRepository());
+//        super(new ExecutionTaskA(), new InMemoryRepository());
     }
 
 }
