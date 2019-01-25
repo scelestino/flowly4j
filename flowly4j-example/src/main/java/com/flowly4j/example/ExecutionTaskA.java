@@ -4,6 +4,7 @@ import com.flowly4j.core.context.ExecutionContext;
 import com.flowly4j.core.tasks.ExecutionTask;
 import com.flowly4j.core.tasks.Task;
 
+import static com.flowly4j.example.CustomKeys.KEY1;
 import static com.flowly4j.example.CustomKeys.KEY2;
 
 public class ExecutionTaskA extends ExecutionTask {
@@ -15,7 +16,7 @@ public class ExecutionTaskA extends ExecutionTask {
 
     @Override
     protected void perform(ExecutionContext executionContext) {
-
+        executionContext.set(KEY1, "esta es una prueba");
     }
 
 }

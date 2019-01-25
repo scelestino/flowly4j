@@ -7,14 +7,13 @@ public class Cancellation {
     public String reason;
     public DateTime at;
 
-    public Cancellation(String reason, DateTime at) {
+    private Cancellation(String reason, DateTime at) {
         this.reason = reason;
         this.at = at;
     }
 
-    public Cancellation(String reason) {
-        this.reason = reason;
-        this.at = DateTime.now();
+    public static Cancellation of(String reason) {
+        return new Cancellation(reason, DateTime.now());
     }
 
 }

@@ -2,7 +2,6 @@ package com.flowly4j.core;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.flowly4j.core.repository.model.Execution;
 
 public class Json {
 

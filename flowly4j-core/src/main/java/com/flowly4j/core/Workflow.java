@@ -5,11 +5,12 @@ import com.flowly4j.core.errors.SessionCantBeExecuted;
 import com.flowly4j.core.errors.TaskNotFound;
 import com.flowly4j.core.context.ExecutionContext;
 import com.flowly4j.core.repository.Repository;
-import com.flowly4j.core.repository.model.Execution;
 import com.flowly4j.core.repository.model.Session;
 import com.flowly4j.core.tasks.Task;
 import com.flowly4j.core.tasks.results.TaskResult;
 import io.vavr.collection.List;
+
+import java.util.UUID;
 
 import static com.flowly4j.core.tasks.results.TaskResultPatterns.*;
 import static io.vavr.API.$;
@@ -28,11 +29,17 @@ public class Workflow {
         this.repository = repository;
     }
 
-    public String init(Param ...params) {
-        // TODO: use params
-        return repository.create().id;
+    /**
+     * Initialize a new workflow session
+     */
+    public String init(Param... params) {
+        return repository.save(Session.of(UUID.randomUUID().toString(), params))._id;
     }
 
+    /**
+     * Execute an instance of {@link Workflow} form its current {@link Task} with the given params
+     *
+     */
     public ExecutionResult execute(String sessionId, Param ...params) {
 
         // Get Session
@@ -44,12 +51,13 @@ public class Workflow {
         }
 
         // Get current Task
-        String taskId = session.lastExecution.map(Execution::taskId).getOrElse(initialTask.id());
+        String taskId = session.lastExecution.map( e -> e.taskId ).getOrElse(initialTask.id());
         Task currentTask = tasks().find(task -> task.id().equals(taskId)).getOrElseThrow(() -> new TaskNotFound(taskId));
 
         // Create Execution Context
         ExecutionContext executionContext = ExecutionContext.of(session, params);
 
+        // Execute
         return execute(currentTask, session, executionContext);
 
     }
@@ -59,7 +67,7 @@ public class Workflow {
         System.out.println("EXECUTING " + task.id());
 
         // Set the session as running
-        Session currentSession = repository.save(session.running(task));
+        Session currentSession = repository.save(session.running(task, executionContext));
 
         // Execute the current task
         TaskResult taskResult = task.execute(executionContext);

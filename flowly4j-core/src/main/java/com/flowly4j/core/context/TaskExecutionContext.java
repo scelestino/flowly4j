@@ -5,7 +5,7 @@ import io.vavr.control.Option;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
-public interface ExecutionVariables {
+public interface TaskExecutionContext {
 
     <T> Option<T> get(Key<T> key);
 
@@ -14,5 +14,9 @@ public interface ExecutionVariables {
     Boolean contains(Key<?> key);
 
     <T> Boolean exists(Key<T> key, Predicate<? super T> condition);
+
+    <T> void set(Key<T> key, T value);
+
+    void unset(Key<?> key);
 
 }

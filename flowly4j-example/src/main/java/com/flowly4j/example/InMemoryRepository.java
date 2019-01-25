@@ -6,17 +6,10 @@ import com.flowly4j.core.repository.model.Session;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 
 public class InMemoryRepository implements Repository {
 
     private Map<String, Session> storage = new HashMap<>();
-
-    @Override
-    public Session create() {
-        String id = UUID.randomUUID().toString();
-        return save(new Session(id));
-    }
 
     @Override
     public Session get(String sessionId) {
@@ -28,7 +21,7 @@ public class InMemoryRepository implements Repository {
 
     @Override
     public Session save(Session session) {
-        storage.put(session.id, session);
+        storage.put(session._id, session);
         return session;
     }
 

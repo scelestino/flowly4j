@@ -3,17 +3,18 @@ package com.flowly4j.core.context;
 import com.flowly4j.core.Json;
 import com.flowly4j.core.Param;
 import com.flowly4j.core.repository.model.Session;
+import io.vavr.Tuple;
+import io.vavr.collection.List;
+import io.vavr.collection.Map;
 import io.vavr.control.Option;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
-public class ExecutionContext implements ExecutionVariables {
+public class ExecutionContext implements TaskExecutionContext {
 
     public final String sessionId;
-    private final Map<String, Object> variables;
+    private Map<String, Object> variables;
 
     private ExecutionContext(String sessionId, Map<String, Object> variables) {
         this.sessionId = sessionId;
@@ -21,11 +22,7 @@ public class ExecutionContext implements ExecutionVariables {
     }
 
     public <T> Option<T> get(Key<T> key) {
-        if(variables.containsKey(key.identifier())) {
-            return Option.of(Json.as(variables.get(key.identifier())));
-        } else {
-            return Option.none();
-        }
+        return variables.get(key.identifier()).map(Json::as);
     }
 
     public <T> T getOrElse(Key<T> key, Supplier<T> orElse) {
@@ -33,11 +30,11 @@ public class ExecutionContext implements ExecutionVariables {
     }
 
     public <T> void set(Key<T> key, T value) {
-        variables.put(key.identifier(), value);
+        variables = variables.put(key.identifier(), value);
     }
 
     public void unset(Key<?> key) {
-        variables.remove(key.identifier());
+        variables = variables.remove(key.identifier());
     }
 
     public Boolean contains(Key<?> key) {
@@ -48,9 +45,13 @@ public class ExecutionContext implements ExecutionVariables {
         return get(key).exists(condition);
     }
 
-    public static ExecutionContext of(Session session, Param...params) {
-        // TODO: merge params with session variables
-        return new ExecutionContext(session.id, new HashMap<>());
+    public Map<String, Object> variables() {
+        return variables;
+    }
+
+    public static ExecutionContext of(Session session, Param... params) {
+        Map<String, Object> variables = List.of(params).toMap(p -> Tuple.of(p.key, p.value)).merge(session.variables);
+        return new ExecutionContext(session._id, variables);
     }
 
 }
