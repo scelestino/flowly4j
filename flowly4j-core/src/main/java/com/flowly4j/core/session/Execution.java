@@ -5,11 +5,25 @@ import io.vavr.control.Option;
 import lombok.ToString;
 import org.joda.time.DateTime;
 
+/**
+ * Execution Information
+ */
 @ToString
 public class Execution {
 
+    /**
+     * Last Task that was executed
+     */
     public final String taskId;
+
+    /**
+     * When it was executed
+     */
     public final DateTime at;
+
+    /**
+     * Optional message about last execution
+     */
     public final Option<String> message;
 
     private Execution(String taskId, DateTime at, Option<String> message) {
