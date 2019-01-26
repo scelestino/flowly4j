@@ -1,16 +1,14 @@
 package com.flowly4j.core.session;
 
 import lombok.Data;
+import lombok.ToString;
 import org.joda.time.DateTime;
 
-@Data
+@ToString
 public class Cancellation {
 
-    public String reason;
-    public DateTime at;
-
-    public Cancellation() {
-    }
+    public final String reason;
+    public final DateTime at;
 
     private Cancellation(String reason, DateTime at) {
         this.reason = reason;

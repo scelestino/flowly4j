@@ -51,7 +51,7 @@ public class ExecutionContext implements TaskExecutionContext {
 
     public static ExecutionContext of(Session session, Param... params) {
         Map<String, Object> variables = List.of(params).toMap(p -> Tuple.of(p.key, p.value)).merge(session.variables);
-        return new ExecutionContext(session.id, variables);
+        return new ExecutionContext(session.sessionId, variables);
     }
 
 }

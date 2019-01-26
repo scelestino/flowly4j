@@ -7,24 +7,24 @@ import io.vavr.Tuple;
 import io.vavr.collection.List;
 import io.vavr.collection.Map;
 import io.vavr.control.Option;
+import lombok.ToString;
 import org.joda.time.DateTime;
 
+import java.util.UUID;
 
+@ToString
 public class Session {
 
-    public String id;
-    public Map<String, Object> variables;
-    public Option<Execution> lastExecution;
-    public Option<Cancellation> cancellation;
-    public DateTime createAt;
-    public Status status;
-    public Long version;
+    public final String sessionId;
+    public final Map<String, Object> variables;
+    public final Option<Execution> lastExecution;
+    public final Option<Cancellation> cancellation;
+    public final DateTime createAt;
+    public final Status status;
+    public final Long version;
 
-    public Session() {
-    }
-
-    public Session(String id, Map<String, Object> variables, Option<Execution> lastExecution, Option<Cancellation> cancellation, DateTime createAt, Status status, Long version) {
-        this.id = id;
+    private Session(String sessionId, Map<String, Object> variables, Option<Execution> lastExecution, Option<Cancellation> cancellation, DateTime createAt, Status status, Long version) {
+        this.sessionId = sessionId;
         this.variables = variables;
         this.lastExecution = lastExecution;
         this.cancellation = cancellation;
@@ -38,29 +38,34 @@ public class Session {
     }
 
     public Session running(Task task, ExecutionContext executionContext) {
-        return new Session(id, executionContext.variables(), Option.of(Execution.of(task)), cancellation, createAt, Status.RUNNING, version);
+        return new Session(sessionId, executionContext.variables(), Option.of(Execution.of(task)), cancellation, createAt, Status.RUNNING, version);
     }
 
     public Session blocked(Task task) {
-        return new Session(id, variables, Option.of(Execution.of(task)), cancellation, createAt, Status.BLOCKED, version);
+        return new Session(sessionId, variables, Option.of(Execution.of(task)), cancellation, createAt, Status.BLOCKED, version);
     }
 
     public Session finished(Task task) {
-        return new Session(id, variables, Option.of(Execution.of(task)), cancellation, createAt, Status.FINISHED, version);
+        return new Session(sessionId, variables, Option.of(Execution.of(task)), cancellation, createAt, Status.FINISHED, version);
     }
 
     public Session onError(Task task, Throwable throwable) {
-        return new Session(id, variables, Option.of(Execution.of(task, throwable.getMessage())), cancellation, createAt, Status.ERROR, version);
+        return new Session(sessionId, variables, Option.of(Execution.of(task, throwable.getMessage())), cancellation, createAt, Status.ERROR, version);
     }
 
 //    public Session cancelled(String reason) {
-//        return new Session(id, variables, lastExecution, Option.of(Cancellation.of(reason)), createAt, Status.CANCELLED, version + 1);
+//        return new Session(sessionId, variables, lastExecution, Option.of(Cancellation.of(reason)), createAt, Status.CANCELLED, version + 1);
 //    }
 
 
-    public static Session of(String id, Param... params) {
+    /**
+     * Create a new session based on parameters
+     *
+     */
+    public static Session of(Param... params) {
         Map<String, Object> variables = List.of(params).toMap(p -> Tuple.of(p.key, p.value));
-        return new Session(id, variables, Option.none(), Option.none(), DateTime.now(), Status.CREATED, 0L);
+        return new Session(UUID.randomUUID().toString(), variables, Option.none(), Option.none(), DateTime.now(), Status.CREATED, 0L);
+        //return new Session("123", variables, Option.none(), Option.none(), DateTime.now(), Status.CREATED, 0L);
     }
 
 }

@@ -6,6 +6,8 @@ public interface Repository {
 
     Session get(String sessionId);
 
-    Session save(Session session);
+    Session insert(Session session);
+
+    Session update(Session session);
 
 }

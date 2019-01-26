@@ -10,8 +10,6 @@ import com.flowly4j.core.tasks.Task;
 import com.flowly4j.core.tasks.results.TaskResult;
 import io.vavr.collection.List;
 
-import java.util.UUID;
-
 import static com.flowly4j.core.tasks.results.TaskResultPatterns.*;
 import static io.vavr.API.$;
 import static io.vavr.API.Case;
@@ -33,8 +31,7 @@ public class Workflow {
      * Initialize a new workflow session
      */
     public String init(Param... params) {
-        return repository.save(Session.of(UUID.randomUUID().toString(), params)).id;
-//        return repository.save(Session.of(null, params)).id;
+        return repository.insert(Session.of(params)).sessionId;
     }
 
     /**
@@ -68,7 +65,7 @@ public class Workflow {
         System.out.println("EXECUTING " + task.id());
 
         // Set the session as running
-        Session currentSession = repository.save(session.running(task, executionContext));
+        Session currentSession = repository.update(session.running(task, executionContext));
 
         // Execute the current task
         TaskResult taskResult = task.execute(executionContext);
@@ -77,12 +74,12 @@ public class Workflow {
 
                 Case($Continue($()), nextTask -> execute(nextTask, currentSession, executionContext)),
 
-                Case($Block, () -> ExecutionResult.of(repository.save(currentSession.blocked(task)), task)),
+                Case($Block, () -> ExecutionResult.of(repository.update(currentSession.blocked(task)), task)),
 
-                Case($Finish, () -> ExecutionResult.of(repository.save(currentSession.finished(task)), task)),
+                Case($Finish, () -> ExecutionResult.of(repository.update(currentSession.finished(task)), task)),
 
                 Case($OnError($()), cause -> {
-                    throw new ExecutionError(cause, repository.save(currentSession.onError(task, cause)), task);
+                    throw new ExecutionError(cause, repository.update(currentSession.onError(task, cause)), task);
                 })
 
         );

@@ -23,7 +23,7 @@ public class ExecutionResult {
     }
 
     public static ExecutionResult of(Session session, Task task) {
-        return new ExecutionResult(session.id, task.id(), session.status);
+        return new ExecutionResult(session.sessionId, task.id(), session.status);
     }
 
 }
