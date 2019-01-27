@@ -14,7 +14,7 @@ import java.util.Objects;
  */
 public abstract class Task {
 
-    public String id() {
+    public String getId() {
         return this.getClass().getSimpleName();
     }
 
@@ -27,12 +27,12 @@ public abstract class Task {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Task task = (Task) o;
-        return Objects.equals(id(), task.id());
+        return Objects.equals(getId(), task.getId());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id());
+        return Objects.hash(getId());
     }
 
 }

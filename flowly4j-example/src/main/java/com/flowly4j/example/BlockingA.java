@@ -1,16 +1,17 @@
 package com.flowly4j.example;
 
-import com.flowly4j.core.context.ExecutionContext;
+import com.flowly4j.core.context.ReadableExecutionContext;
 import com.flowly4j.core.tasks.BlockingTask;
 import com.flowly4j.core.tasks.Task;
 
 import static com.flowly4j.example.CustomKeys.KEY1;
-import static com.flowly4j.example.CustomKeys.KEY2;
+import static com.flowly4j.example.CustomKeys.KEY4;
 
 public class BlockingA extends BlockingTask {
 
     @Override
-    public Boolean condition(ExecutionContext executionContext) {
+    public Boolean condition(ReadableExecutionContext executionContext) {
+        System.out.println(executionContext.get(KEY4));
         return executionContext.contains(KEY1);
     }
 

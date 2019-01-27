@@ -1,9 +1,12 @@
 package com.flowly4j.mongodb;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.joda.JodaModule;
 import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 import com.flowly4j.core.repository.Repository;
@@ -12,6 +15,7 @@ import com.mongodb.MongoClient;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.IndexOptions;
 import io.vavr.jackson.datatype.VavrModule;
+import lombok.val;
 import org.bson.Document;
 import org.mongojack.JacksonMongoCollection;
 
@@ -38,10 +42,13 @@ public class MongoDBRepository implements Repository {
         this.objectMapper.registerModule(new VavrModule());
         this.objectMapper.registerModule(new JodaModule());
         this.objectMapper.registerModule(new ParameterNamesModule(JsonCreator.Mode.PROPERTIES));
-        this.objectMapper.enable(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES);
+        this.objectMapper.setVisibility(PropertyAccessor.GETTER, JsonAutoDetect.Visibility.NONE);
+        this.objectMapper.setVisibility(PropertyAccessor.IS_GETTER, JsonAutoDetect.Visibility.NONE);
+        this.objectMapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
         this.objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        this.objectMapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
 
-        MongoCollection<Document> mongoCollection = client.getDatabase(databaseName).getCollection(collectionName);
+        val mongoCollection = client.getDatabase(databaseName).getCollection(collectionName);
 
         JacksonMongoCollection.JacksonMongoCollectionBuilder<Session> builder = JacksonMongoCollection.builder();
         this.collection = builder.withObjectMapper(this.objectMapper).build(mongoCollection, Session.class);
@@ -65,7 +72,7 @@ public class MongoDBRepository implements Repository {
 
     /**
      * Insert a new session into the database, due to the sessionId index there is no possible to create two
-     * sessions with the same id
+     * sessions with the same getId
      */
     @Override
     public Session insert(Session session) {
@@ -73,7 +80,7 @@ public class MongoDBRepository implements Repository {
             collection.insert(session);
             return session;
         } catch (Throwable throwable) {
-            throw new PersistenceException("Error inserting session " + session.sessionId, throwable);
+            throw new PersistenceException("Error inserting session " + session.getSessionId(), throwable);
         }
     }
 
@@ -89,25 +96,25 @@ public class MongoDBRepository implements Repository {
         try {
 
             // Update will replace every document field and it is going to increment in one unit its version
-            Document document = JacksonMongoCollection.convertToDocument(session, objectMapper, Session.class);
+            val document = JacksonMongoCollection.convertToDocument(session, objectMapper, Session.class);
             document.remove("version");
 
-            Document update = new Document("$set", document);
+            val update = new Document("$set", document);
             update.put("$inc", new Document("version", 1));
 
             // Condition: there is a session with the same sessionId and version
-            Map<String, Object> query = new HashMap<String, Object>() {
+            val query = new HashMap<String, Object>() {
                 {
-                    put("sessionId", session.sessionId);
-                    put("version", session.version);
+                    put("sessionId", session.getSessionId());
+                    put("version", session.getVersion());
                 }
             };
 
-            Session result = collection.findAndModify(new Document(query), new Document(), new Document(), collection.serializeFields(update), true, false);
+            val result = collection.findAndModify(new Document(query), new Document(), new Document(), collection.serializeFields(update), true, false);
 
             // if the session doesn't exist or the version is different there is no result
             if (result == null) {
-                throw new OptimisticLockException("Session " + session.sessionId + " was modified by another transaction");
+                throw new OptimisticLockException("Session " + session.getSessionId() + " was modified by another transaction");
             }
 
             return result;
@@ -115,7 +122,7 @@ public class MongoDBRepository implements Repository {
         } catch (OptimisticLockException ex) {
             throw  ex;
         } catch (Throwable throwable) {
-            throw new PersistenceException("Error saving session " + session.sessionId, throwable);
+            throw new PersistenceException("Error saving session " + session.getSessionId(), throwable);
         }
 
     }

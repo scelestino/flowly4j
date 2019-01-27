@@ -1,6 +1,6 @@
 package com.flowly4j.example;
 
-import com.flowly4j.core.context.Key;
+import com.flowly4j.core.input.Key;
 
 public class CustomKeys {
 

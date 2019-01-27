@@ -2,13 +2,9 @@ package com.flowly4j.example;
 
 import lombok.*;
 
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@EqualsAndHashCode
-@ToString
+@Value(staticConstructor = "of")
 public class Person {
-    private String name;
-    private Integer age;
+    String name;
+    Integer age;
 }
+

@@ -1,6 +1,7 @@
 package com.flowly4j.core.tasks;
 
 import com.flowly4j.core.context.ExecutionContext;
+import com.flowly4j.core.context.WritableExecutionContext;
 import com.flowly4j.core.tasks.results.Continue;
 import com.flowly4j.core.tasks.results.OnError;
 import com.flowly4j.core.tasks.results.TaskResult;
@@ -14,7 +15,7 @@ public abstract class ExecutionTask extends Task {
 
     public abstract Task next();
 
-    protected abstract void perform(ExecutionContext executionContext);
+    protected abstract void perform(WritableExecutionContext executionContext);
 
     @Override
     public TaskResult execute(ExecutionContext executionContext) {

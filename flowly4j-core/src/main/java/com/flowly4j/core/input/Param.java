@@ -1,11 +1,18 @@
-package com.flowly4j.core;
+package com.flowly4j.core.input;
 
-import com.flowly4j.core.context.Key;
+import lombok.Getter;
+import lombok.ToString;
+import lombok.Value;
 
+/**
+ * Represent a pair key -> value
+ */
+@Getter
+@ToString
 public class Param {
 
-    public final String key;
-    public final Object value;
+    private String key;
+    private Object value;
 
     private Param(String key, Object value) {
         this.key = key;

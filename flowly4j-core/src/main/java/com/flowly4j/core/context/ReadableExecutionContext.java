@@ -1,11 +1,14 @@
 package com.flowly4j.core.context;
 
+import com.flowly4j.core.input.Key;
 import io.vavr.control.Option;
 
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
-public interface TaskExecutionContext {
+public interface ReadableExecutionContext {
+
+    String getSessionId();
 
     <T> Option<T> get(Key<T> key);
 
@@ -15,8 +18,6 @@ public interface TaskExecutionContext {
 
     <T> Boolean exists(Key<T> key, Predicate<? super T> condition);
 
-    <T> void set(Key<T> key, T value);
-
-    void unset(Key<?> key);
+    <T> Boolean forAll(Key<T> key, Predicate<? super T> condition);
 
 }

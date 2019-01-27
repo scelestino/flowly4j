@@ -8,8 +8,8 @@ import com.mongodb.MongoClient;
 public class WorkflowA extends Workflow {
 
     public WorkflowA() {
-        super(new ExecutionTaskA(), new MongoDBRepository(new MongoClient("localhost"), "flowly", "workflowA", new ObjectMapper()));
-//        super(new ExecutionTaskA(), new InMemoryRepository());
+        this.initialTask = new ExecutionTaskA();
+        this.repository = new MongoDBRepository(new MongoClient("localhost"), "flowly", "workflowA", new ObjectMapper());
     }
 
 }

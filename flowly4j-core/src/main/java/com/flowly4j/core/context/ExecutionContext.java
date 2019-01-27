@@ -1,19 +1,24 @@
 package com.flowly4j.core.context;
 
 import com.flowly4j.core.Json;
-import com.flowly4j.core.Param;
+import com.flowly4j.core.input.Param;
+import com.flowly4j.core.input.Key;
 import com.flowly4j.core.session.Session;
 import io.vavr.Tuple;
 import io.vavr.collection.List;
 import io.vavr.collection.Map;
 import io.vavr.control.Option;
+import lombok.Getter;
+import lombok.ToString;
 
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
-public class ExecutionContext implements TaskExecutionContext {
+@Getter
+@ToString
+public class ExecutionContext implements ReadableExecutionContext, WritableExecutionContext {
 
-    public final String sessionId;
+    private String sessionId;
     private Map<String, Object> variables;
 
     private ExecutionContext(String sessionId, Map<String, Object> variables) {
@@ -45,13 +50,13 @@ public class ExecutionContext implements TaskExecutionContext {
         return get(key).exists(condition);
     }
 
-    public Map<String, Object> variables() {
-        return variables;
+    public <T> Boolean forAll(Key<T> key, Predicate<? super T> condition) {
+        return get(key).forAll(condition);
     }
 
     public static ExecutionContext of(Session session, Param... params) {
-        Map<String, Object> variables = List.of(params).toMap(p -> Tuple.of(p.key, p.value)).merge(session.variables);
-        return new ExecutionContext(session.sessionId, variables);
+        Map<String, Object> variables = List.of(params).toMap(p -> Tuple.of(p.getKey(), p.getValue())).merge(session.getVariables());
+        return new ExecutionContext(session.getSessionId(), variables);
     }
 
 }

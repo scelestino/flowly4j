@@ -1,6 +1,7 @@
 package com.flowly4j.core.tasks;
 
 import com.flowly4j.core.context.ExecutionContext;
+import com.flowly4j.core.context.ReadableExecutionContext;
 import com.flowly4j.core.errors.DisjunctionTaskError;
 import com.flowly4j.core.tasks.results.Continue;
 import com.flowly4j.core.tasks.results.OnError;
@@ -8,6 +9,8 @@ import com.flowly4j.core.tasks.results.TaskResult;
 import io.vavr.Function1;
 import io.vavr.collection.List;
 import io.vavr.control.Option;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 
 import static io.vavr.API.$;
 import static io.vavr.API.Case;
@@ -31,7 +34,7 @@ public abstract class DisjunctionTask extends Task {
         this.branches = List.of(branches);
     }
 
-    public DisjunctionTask(Task ifTrue, Task ifFalse, Function1<ExecutionContext, Boolean> condition) {
+    public DisjunctionTask(Task ifTrue, Task ifFalse, Function1<ReadableExecutionContext, Boolean> condition) {
         this.branches = List.of(new Branch(condition, ifTrue), new Branch(c -> true, ifFalse));
     }
 
@@ -56,13 +59,11 @@ public abstract class DisjunctionTask extends Task {
         return branches.find( branch -> branch.condition.apply(executionContext) ).map( branch -> branch.task );
     }
 
+    @Getter
+    @AllArgsConstructor
     public static class Branch {
-        public final Function1<ExecutionContext, Boolean> condition;
-        public final Task task;
-        public Branch(Function1<ExecutionContext, Boolean> condition, Task task) {
-            this.condition = condition;
-            this.task = task;
-        }
+        private Function1<ReadableExecutionContext, Boolean> condition;
+        private Task task;
     }
 
 }

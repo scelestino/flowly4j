@@ -53,16 +53,6 @@ public enum Status {
         public Boolean isExecutable() {
             return true;
         }
-    },
-
-    /**
-     * This session was cancelled
-     */
-    CANCELLED {
-        @Override
-        public Boolean isExecutable() {
-            return false;
-        }
     };
 
     public abstract Boolean isExecutable();

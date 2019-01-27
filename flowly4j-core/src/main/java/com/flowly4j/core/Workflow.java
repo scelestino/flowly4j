@@ -4,11 +4,14 @@ import com.flowly4j.core.errors.ExecutionError;
 import com.flowly4j.core.errors.SessionCantBeExecuted;
 import com.flowly4j.core.errors.TaskNotFound;
 import com.flowly4j.core.context.ExecutionContext;
+import com.flowly4j.core.input.Param;
+import com.flowly4j.core.output.ExecutionResult;
 import com.flowly4j.core.repository.Repository;
+import com.flowly4j.core.session.Execution;
 import com.flowly4j.core.session.Session;
 import com.flowly4j.core.tasks.Task;
-import com.flowly4j.core.tasks.results.TaskResult;
 import io.vavr.collection.List;
+import lombok.val;
 
 import static com.flowly4j.core.tasks.results.TaskResultPatterns.*;
 import static io.vavr.API.$;
@@ -18,9 +21,11 @@ import static io.vavr.API.Match;
 
 public class Workflow {
 
-    private Task initialTask;
+    protected Task initialTask;
+    protected Repository repository;
 
-    private Repository repository;
+    public Workflow() {
+    }
 
     public Workflow(Task initialTask, Repository repository) {
         this.initialTask = initialTask;
@@ -31,7 +36,7 @@ public class Workflow {
      * Initialize a new workflow session
      */
     public String init(Param... params) {
-        return repository.insert(Session.of(params)).sessionId;
+        return repository.insert(Session.of(params)).getSessionId();
     }
 
     /**
@@ -41,7 +46,7 @@ public class Workflow {
     public ExecutionResult execute(String sessionId, Param ...params) {
 
         // Get Session
-        Session session = repository.get(sessionId);
+        val session = repository.get(sessionId);
 
         // Can be executed?
         if (!session.isExecutable()) {
@@ -49,11 +54,11 @@ public class Workflow {
         }
 
         // Get current Task
-        String taskId = session.lastExecution.map( e -> e.taskId ).getOrElse(initialTask.id());
-        Task currentTask = tasks().find(task -> task.id().equals(taskId)).getOrElseThrow(() -> new TaskNotFound(taskId));
+        val taskId = session.getLastExecution().map(Execution::getTaskId).getOrElse(initialTask.getId());
+        val currentTask = tasks().find(task -> task.getId().equals(taskId)).getOrElseThrow(() -> new TaskNotFound(taskId));
 
         // Create Execution Context
-        ExecutionContext executionContext = ExecutionContext.of(session, params);
+        val executionContext = ExecutionContext.of(session, params);
 
         // Execute
         return execute(currentTask, session, executionContext);
@@ -62,13 +67,13 @@ public class Workflow {
 
     private ExecutionResult execute(Task task, Session session, ExecutionContext executionContext) {
 
-        System.out.println("EXECUTING " + task.id());
+        System.out.println("EXECUTING " + task.getId());
 
         // Set the session as running
-        Session currentSession = repository.update(session.running(task, executionContext));
+        val currentSession = repository.update(session.running(task, executionContext));
 
         // Execute the current task
-        TaskResult taskResult = task.execute(executionContext);
+        val taskResult = task.execute(executionContext);
 
         return Match(taskResult).of(
 

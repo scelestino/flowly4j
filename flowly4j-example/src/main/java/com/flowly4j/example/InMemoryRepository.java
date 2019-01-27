@@ -21,12 +21,12 @@ public class InMemoryRepository implements Repository {
 
     @Override
     public Session insert(Session session) {
-        return storage.put(session.sessionId, session);
+        return storage.put(session.getSessionId(), session);
     }
 
     @Override
     public Session update(Session session) {
-        return storage.put(session.sessionId, session);
+        return storage.put(session.getSessionId(), session);
     }
 
 }

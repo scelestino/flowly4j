@@ -1,6 +1,7 @@
 package com.flowly4j.core.tasks;
 
 import com.flowly4j.core.context.ExecutionContext;
+import com.flowly4j.core.context.ReadableExecutionContext;
 import com.flowly4j.core.tasks.results.Block;
 import com.flowly4j.core.tasks.results.Continue;
 import com.flowly4j.core.tasks.results.OnError;
@@ -15,7 +16,7 @@ import io.vavr.collection.List;
  */
 public abstract class BlockingTask extends Task {
 
-    public abstract Boolean condition(ExecutionContext executionContext);
+    public abstract Boolean condition(ReadableExecutionContext executionContext);
 
     public abstract Task next();
 
