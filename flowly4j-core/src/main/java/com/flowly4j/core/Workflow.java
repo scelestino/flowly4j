@@ -5,6 +5,7 @@ import com.flowly4j.core.errors.SessionCantBeExecuted;
 import com.flowly4j.core.errors.TaskNotFound;
 import com.flowly4j.core.context.ExecutionContext;
 import com.flowly4j.core.context.ExecutionContext.ExecutionContextFactory;
+import com.flowly4j.core.events.EventListener;
 import com.flowly4j.core.input.Param;
 import com.flowly4j.core.output.ExecutionResult;
 import com.flowly4j.core.repository.Repository;
@@ -25,20 +26,20 @@ public class Workflow {
     protected Task initialTask;
     protected Repository repository;
     protected ExecutionContextFactory executionContextFactory;
-
-    public Workflow() {}
-
-    public Workflow(Task initialTask, Repository repository, ExecutionContextFactory executionContextFactory) {
-        this.initialTask = initialTask;
-        this.repository = repository;
-        this.executionContextFactory = executionContextFactory;
-    }
+    protected List<EventListener> eventListeners = List.empty();
 
     /**
      * Initialize a new workflow session
      */
     public String init(Param... params) {
-        return repository.insert(Session.of(params)).getSessionId();
+
+        val sessionId = repository.insert(Session.of(params)).getSessionId();
+
+        // On Init Event
+        eventListeners.forEach( l -> l.onInitialization(sessionId, List.of(params)) );
+
+        return sessionId;
+
     }
 
     /**
@@ -62,31 +63,67 @@ public class Workflow {
         // Create Execution Context
         val executionContext = executionContextFactory.create(session, params);
 
+        // Set the session as running
+        val runningSession = repository.update(session.running(currentTask, executionContext));
+
+        // On Start Event
+        if(currentTask.equals(initialTask)) {
+            eventListeners.forEach( l -> l.onStart(executionContext) );
+        }
+
         // Execute
-        return execute(currentTask, session, executionContext);
+        return execute(currentTask, runningSession, executionContext);
 
     }
 
     private ExecutionResult execute(Task task, Session session, ExecutionContext executionContext) {
-
-        System.out.println("EXECUTING " + task.getId());
-
-        // Set the session as running
-        val currentSession = repository.update(session.running(task, executionContext));
 
         // Execute the current task
         val taskResult = task.execute(executionContext);
 
         return Match(taskResult).of(
 
-                Case($Continue($()), nextTask -> execute(nextTask, currentSession, executionContext)),
+                Case($Continue($()), nextTask -> {
 
-                Case($Block, () -> ExecutionResult.of(repository.update(currentSession.blocked(task)), task)),
+                    // Set the session as running (with new context and next task)
+                    val runningSession = repository.update(session.running(nextTask, executionContext));
 
-                Case($Finish, () -> ExecutionResult.of(repository.update(currentSession.finished(task)), task)),
+                    // On Continue Event
+                    eventListeners.forEach( l -> l.onContinue(executionContext, task.getId(), nextTask.getId()) );
+
+                    return execute(nextTask, runningSession, executionContext);
+
+                }),
+
+                Case($Block, () -> {
+
+                    val blockedSession = repository.update(session.blocked(task));
+
+                    // On Block Event
+                    eventListeners.forEach( l -> l.onBlock(executionContext, task.getId()) );
+
+                    return ExecutionResult.of(blockedSession, task);
+
+                }),
+
+                Case($Finish, () -> {
+
+                    val finishedSession = repository.update(session.finished(task));
+
+                    // On Finish Event
+                    eventListeners.forEach( l -> l.onFinish(executionContext, task.getId()) );
+
+                    return ExecutionResult.of(finishedSession, task);
+
+                }),
 
                 Case($OnError($()), cause -> {
-                    throw new ExecutionError(cause, repository.update(currentSession.onError(task, cause)), task);
+
+                    // On Error Event
+                    eventListeners.forEach( l -> l.onError(executionContext, task.getId(), cause) );
+
+                    throw new ExecutionError(cause, repository.update(session.onError(task, cause)), task);
+
                 })
 
         );
