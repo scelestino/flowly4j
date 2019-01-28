@@ -1,33 +1,37 @@
 package com.flowly4j.core.context;
 
-import com.flowly4j.core.Json;
 import com.flowly4j.core.input.Param;
 import com.flowly4j.core.input.Key;
+import com.flowly4j.core.serialization.Serializer;
 import com.flowly4j.core.session.Session;
 import io.vavr.Tuple;
 import io.vavr.collection.List;
 import io.vavr.collection.Map;
 import io.vavr.control.Option;
-import lombok.Getter;
 import lombok.ToString;
 
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
-@Getter
-@ToString
+/**
+ * Execution Context is used as a bridge between Session and Tasks
+ */
+@ToString(exclude = "serializer")
 public class ExecutionContext implements ReadableExecutionContext, WritableExecutionContext {
 
     private String sessionId;
     private Map<String, Object> variables;
+    private Serializer<String> serializer;
 
-    private ExecutionContext(String sessionId, Map<String, Object> variables) {
+    private ExecutionContext(String sessionId, Map<String, Object> variables, Serializer<String> serializer) {
         this.sessionId = sessionId;
         this.variables = variables;
+        this.serializer = serializer;
     }
 
     public <T> Option<T> get(Key<T> key) {
-        return variables.get(key.identifier()).map(Json::as);
+        //return variables.get(key.identifier()).map(serializer::deepCopy);
+        return variables.get(key.identifier()).map( d -> serializer.read(serializer.write(d)) );
     }
 
     public <T> T getOrElse(Key<T> key, Supplier<T> orElse) {
@@ -35,7 +39,7 @@ public class ExecutionContext implements ReadableExecutionContext, WritableExecu
     }
 
     public <T> void set(Key<T> key, T value) {
-        variables = variables.put(key.identifier(), value);
+        variables = variables.put(key.identifier(), serializer.deepCopy(value));
     }
 
     public void unset(Key<?> key) {
@@ -54,9 +58,19 @@ public class ExecutionContext implements ReadableExecutionContext, WritableExecu
         return get(key).forAll(condition);
     }
 
-    public static ExecutionContext of(Session session, Param... params) {
+    public static ExecutionContext of(Serializer<String> serializer, Session session, Param... params) {
         Map<String, Object> variables = List.of(params).toMap(p -> Tuple.of(p.getKey(), p.getValue())).merge(session.getVariables());
-        return new ExecutionContext(session.getSessionId(), variables);
+        return new ExecutionContext(session.getSessionId(), variables, serializer);
+    }
+
+    @Override
+    public String getSessionId() {
+        return sessionId;
+    }
+
+    public Map<String, Object> getVariables() {
+        //return serializer.deepCopy(variables);
+        return variables;
     }
 
 }

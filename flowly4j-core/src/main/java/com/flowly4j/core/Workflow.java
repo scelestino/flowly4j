@@ -7,6 +7,7 @@ import com.flowly4j.core.context.ExecutionContext;
 import com.flowly4j.core.input.Param;
 import com.flowly4j.core.output.ExecutionResult;
 import com.flowly4j.core.repository.Repository;
+import com.flowly4j.core.serialization.Serializer;
 import com.flowly4j.core.session.Execution;
 import com.flowly4j.core.session.Session;
 import com.flowly4j.core.tasks.Task;
@@ -23,13 +24,14 @@ public class Workflow {
 
     protected Task initialTask;
     protected Repository repository;
+    protected Serializer<String> serializer;
 
-    public Workflow() {
-    }
+    public Workflow() {}
 
-    public Workflow(Task initialTask, Repository repository) {
+    public Workflow(Task initialTask, Repository repository, Serializer<String> serializer) {
         this.initialTask = initialTask;
         this.repository = repository;
+        this.serializer = serializer;
     }
 
     /**
@@ -58,7 +60,7 @@ public class Workflow {
         val currentTask = tasks().find(task -> task.getId().equals(taskId)).getOrElseThrow(() -> new TaskNotFound(taskId));
 
         // Create Execution Context
-        val executionContext = ExecutionContext.of(session, params);
+        val executionContext = ExecutionContext.of(serializer, session, params);
 
         // Execute
         return execute(currentTask, session, executionContext);
