@@ -4,10 +4,10 @@ import com.flowly4j.core.errors.ExecutionError;
 import com.flowly4j.core.errors.SessionCantBeExecuted;
 import com.flowly4j.core.errors.TaskNotFound;
 import com.flowly4j.core.context.ExecutionContext;
+import com.flowly4j.core.context.ExecutionContext.ExecutionContextFactory;
 import com.flowly4j.core.input.Param;
 import com.flowly4j.core.output.ExecutionResult;
 import com.flowly4j.core.repository.Repository;
-import com.flowly4j.core.serialization.Serializer;
 import com.flowly4j.core.session.Execution;
 import com.flowly4j.core.session.Session;
 import com.flowly4j.core.tasks.Task;
@@ -24,14 +24,14 @@ public class Workflow {
 
     protected Task initialTask;
     protected Repository repository;
-    protected Serializer<String> serializer;
+    protected ExecutionContextFactory executionContextFactory;
 
     public Workflow() {}
 
-    public Workflow(Task initialTask, Repository repository, Serializer<String> serializer) {
+    public Workflow(Task initialTask, Repository repository, ExecutionContextFactory executionContextFactory) {
         this.initialTask = initialTask;
         this.repository = repository;
-        this.serializer = serializer;
+        this.executionContextFactory = executionContextFactory;
     }
 
     /**
@@ -60,7 +60,7 @@ public class Workflow {
         val currentTask = tasks().find(task -> task.getId().equals(taskId)).getOrElseThrow(() -> new TaskNotFound(taskId));
 
         // Create Execution Context
-        val executionContext = ExecutionContext.of(serializer, session, params);
+        val executionContext = executionContextFactory.create(session, params);
 
         // Execute
         return execute(currentTask, session, executionContext);

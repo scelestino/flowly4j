@@ -1,14 +1,13 @@
 package com.flowly4j.core.input;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import lombok.Value;
+
 /**
  * Bind a type to a specific String
  */
-public interface Key<T> {
-
-    String identifier();
-
-    static <T> Key<T> of(String identifier) {
-        return () -> identifier;
-    }
-
+@Value(staticConstructor = "of")
+public class Key<T> {
+    private String identifier;
+    private TypeReference<T> typeReference;
 }

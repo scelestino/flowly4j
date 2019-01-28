@@ -20,7 +20,7 @@ public class Param {
     }
 
     public static <T> Param of(Key<T> key, T value) {
-        return new Param(key.identifier(), value);
+        return new Param(key.getIdentifier(), value);
     }
 
 }

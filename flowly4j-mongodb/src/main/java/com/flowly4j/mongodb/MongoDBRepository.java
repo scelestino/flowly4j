@@ -42,11 +42,8 @@ public class MongoDBRepository implements Repository {
         this.objectMapper.registerModule(new VavrModule());
         this.objectMapper.registerModule(new JodaModule());
         this.objectMapper.registerModule(new ParameterNamesModule(JsonCreator.Mode.PROPERTIES));
-        this.objectMapper.setVisibility(PropertyAccessor.GETTER, JsonAutoDetect.Visibility.NONE);
-        this.objectMapper.setVisibility(PropertyAccessor.IS_GETTER, JsonAutoDetect.Visibility.NONE);
-        this.objectMapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
         this.objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        this.objectMapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
+        this.objectMapper.addMixIn(Session.class, SessionMixIn.class);
 
         val mongoCollection = client.getDatabase(databaseName).getCollection(collectionName);
 
