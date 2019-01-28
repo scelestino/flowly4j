@@ -13,6 +13,7 @@ import com.flowly4j.core.serialization.JsonSerializer;
 import io.vavr.collection.HashMap;
 import io.vavr.collection.Map;
 import io.vavr.jackson.datatype.VavrModule;
+import lombok.Value;
 import lombok.val;
 
 import java.io.IOException;
@@ -43,51 +44,51 @@ public class App {
 
         String sessionId = workflow.init(Param.of(KEY1, "asd"), Param.of(KEY2, 123));
 
-     //   ObjectMapper objectMapper = new ObjectMapper();
-     //   objectMapper.registerModule(new VavrModule());
-    //    objectMapper.registerModule(new JodaModule());
-    //    objectMapper.registerModule(new ParameterNamesModule(JsonCreator.Mode.PROPERTIES));
-    //    val s = new JsonSerializer(objectMapper);
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new VavrModule());
+        objectMapper.registerModule(new JodaModule());
+        objectMapper.registerModule(new ParameterNamesModule(JsonCreator.Mode.PROPERTIES));
+        val s = new JsonSerializer(objectMapper);
 
 
-      //  String json = s.write(HashMap.of("asd", "ase"));
+        String json = s.write(Person.of("asdasdd", 123));
 
+        System.out.println(json);
 
+        Person r = s.<Person>read(json);
 
-        //val r = s.<Map<String, String>>read(json);
-
-
+        System.out.println(r);
 
 
 
 
        // System.out.println(r);
 
-        tpe.execute(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    Thread.sleep(2000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                ExecutionResult result = workflow.execute(sessionId);
-                System.out.println(result);
-            }
-        });
-
-        tpe.execute(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    Thread.sleep(2000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                ExecutionResult result = workflow.execute(sessionId);
-                System.out.println(result);
-            }
-        });
+//        tpe.execute(new Runnable() {
+//            @Override
+//            public void run() {
+//                try {
+//                    Thread.sleep(2000);
+//                } catch (InterruptedException e) {
+//                    e.printStackTrace();
+//                }
+//                ExecutionResult result = workflow.execute(sessionId);
+//                System.out.println(result);
+//            }
+//        });
+//
+//        tpe.execute(new Runnable() {
+//            @Override
+//            public void run() {
+//                try {
+//                    Thread.sleep(2000);
+//                } catch (InterruptedException e) {
+//                    e.printStackTrace();
+//                }
+//                ExecutionResult result = workflow.execute(sessionId);
+//                System.out.println(result);
+//            }
+//        });
 
 
         tpe.awaitTermination(1000, TimeUnit.MILLISECONDS);
@@ -99,10 +100,6 @@ public class App {
         //System.out.println( result );
 
     }
-
-
-
-
 
 
 }
