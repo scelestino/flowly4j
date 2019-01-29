@@ -14,6 +14,8 @@ public interface ReadableExecutionContext {
 
     <T> T getOrElse(Key<T> key, Supplier<T> orElse);
 
+    <T> T getOrThrow(Key<T> key);
+
     Boolean contains(Key<?> key);
 
     <T> Boolean exists(Key<T> key, Predicate<? super T> condition);

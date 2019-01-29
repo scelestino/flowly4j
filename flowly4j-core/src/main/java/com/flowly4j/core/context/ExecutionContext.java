@@ -1,6 +1,7 @@
 package com.flowly4j.core.context;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.flowly4j.core.errors.KeyNotFoundException;
 import com.flowly4j.core.input.Param;
 import com.flowly4j.core.input.Key;
 import com.flowly4j.core.serialization.Serializer;
@@ -37,6 +38,12 @@ public class ExecutionContext implements ReadableExecutionContext, WritableExecu
 
     public <T> T getOrElse(Key<T> key, Supplier<T> orElse) {
         return get(key).getOrElse(orElse);
+    }
+
+    public <T> T getOrThrow(Key<T> key) {
+        return get(key).getOrElse(() -> {
+            throw new KeyNotFoundException(key.getIdentifier(), "Key not found in Execution Context");
+        });
     }
 
     public <T> void set(Key<T> key, T value) {
