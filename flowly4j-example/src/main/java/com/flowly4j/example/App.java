@@ -12,6 +12,7 @@ import java.util.concurrent.TimeUnit;
 
 import static com.flowly4j.example.CustomKeys.KEY1;
 import static com.flowly4j.example.CustomKeys.KEY2;
+import static com.flowly4j.example.CustomKeys.KEY3;
 
 
 /**
@@ -39,7 +40,7 @@ public class App {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            ExecutionResult result = workflow.execute(sessionId);
+            ExecutionResult result = workflow.execute(sessionId, Param.of(KEY3, true));
             System.out.println(result);
         });
 

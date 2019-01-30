@@ -100,7 +100,7 @@ public class Session {
      * Create a new session based on parameters
      */
     public static Session of(Param... params) {
-        Map<String, Object> variables = List.of(params).toMap(p -> Tuple.of(p.getKey(), p.getValue()));
+        Map<String, Object> variables = List.of(params).toMap(p -> Tuple.of(p.getKey().getIdentifier(), p.getValue()));
         return new Session(UUID.randomUUID().toString(), variables, Option.none(), DateTime.now(), Status.CREATED, 0L);
     }
 

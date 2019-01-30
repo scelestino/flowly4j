@@ -1,6 +1,7 @@
 package com.flowly4j.core.input;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import lombok.ToString;
 import lombok.Value;
 
 /**

@@ -1,11 +1,13 @@
 package com.flowly4j.core;
 
-import com.flowly4j.core.errors.ExecutionError;
-import com.flowly4j.core.errors.SessionCantBeExecuted;
-import com.flowly4j.core.errors.TaskNotFound;
+import com.flowly4j.core.errors.ExecutionException;
+import com.flowly4j.core.errors.ParamsNotAllowedException;
+import com.flowly4j.core.errors.SessionCantBeExecutedException;
+import com.flowly4j.core.errors.TaskNotFoundException;
 import com.flowly4j.core.context.ExecutionContext;
 import com.flowly4j.core.context.ExecutionContext.ExecutionContextFactory;
 import com.flowly4j.core.events.EventListener;
+import com.flowly4j.core.input.Key;
 import com.flowly4j.core.input.Param;
 import com.flowly4j.core.output.ExecutionResult;
 import com.flowly4j.core.repository.Repository;
@@ -47,18 +49,32 @@ public class Workflow {
      *
      */
     public ExecutionResult execute(String sessionId, Param ...params) {
+        return execute(sessionId, List.of(params));
+    }
+
+    /**
+     * Execute an instance of {@link Workflow} form its current {@link Task} with the given params
+     *
+     */
+    public ExecutionResult execute(String sessionId, List<Param> params) {
 
         // Get Session
         val session = repository.get(sessionId);
 
         // Can be executed?
         if (!session.isExecutable()) {
-            throw new SessionCantBeExecuted(sessionId);
+            throw new SessionCantBeExecutedException(sessionId, "Session " + sessionId + " can't be executed");
         }
 
         // Get current Task
         val taskId = session.getLastExecution().map(Execution::getTaskId).getOrElse(initialTask.getId());
-        val currentTask = tasks().find(task -> task.getId().equals(taskId)).getOrElseThrow(() -> new TaskNotFound(taskId));
+        val currentTask = getTasks().find(task -> task.getId().equals(taskId)).getOrElseThrow(() -> new TaskNotFoundException(taskId, "Task " + taskId + " doesn't belong to Session " + sessionId));
+
+        // Are params allowed?
+        List<Key> keys = params.map(Param::getKey);
+        if(!currentTask.accept(keys)) {
+            throw new ParamsNotAllowedException(taskId, keys, "Task " + currentTask + " doesn't accept one or more of the following keys " + keys.map(Key::getIdentifier));
+        }
 
         // Create Execution Context
         val executionContext = executionContextFactory.create(session, params);
@@ -102,7 +118,7 @@ public class Workflow {
                     // On Block Event
                     eventListeners.forEach( l -> l.onBlock(executionContext, task.getId()) );
 
-                    return ExecutionResult.of(blockedSession, task);
+                    return ExecutionResult.of(blockedSession, task, executionContext);
 
                 }),
 
@@ -113,7 +129,7 @@ public class Workflow {
                     // On Finish Event
                     eventListeners.forEach( l -> l.onFinish(executionContext, task.getId()) );
 
-                    return ExecutionResult.of(finishedSession, task);
+                    return ExecutionResult.of(finishedSession, task, executionContext);
 
                 }),
 
@@ -122,7 +138,7 @@ public class Workflow {
                     // On Error Event
                     eventListeners.forEach( l -> l.onError(executionContext, task.getId(), cause) );
 
-                    throw new ExecutionError(cause, repository.update(session.onError(task, cause)), task);
+                    throw new ExecutionException(repository.update(session.onError(task, cause)), task, cause);
 
                 })
 
@@ -135,12 +151,11 @@ public class Workflow {
      *
      * @return list of {@link Task}
      */
-    private List<Task> tasks() {
-        return tasks(initialTask, List.empty());
+    private List<Task> getTasks() {
+        return getTasks(initialTask, List.empty());
     }
-
-    private static List<Task> tasks(Task currentTask, List<Task> accum) {
-        return accum.contains(currentTask) ? accum : currentTask.followedBy().foldRight(accum.append(currentTask), Workflow::tasks);
+    private List<Task> getTasks(Task currentTask, List<Task> accum) {
+        return accum.contains(currentTask) ? accum : currentTask.followedBy().foldRight(accum.append(currentTask), this::getTasks);
     }
 
 }

@@ -2,6 +2,7 @@ package com.flowly4j.core.tasks;
 
 import com.flowly4j.core.context.ExecutionContext;
 import com.flowly4j.core.context.WritableExecutionContext;
+import com.flowly4j.core.input.Key;
 import com.flowly4j.core.tasks.results.Continue;
 import com.flowly4j.core.tasks.results.OnError;
 import com.flowly4j.core.tasks.results.TaskResult;
@@ -13,7 +14,11 @@ import io.vavr.collection.List;
  */
 public abstract class ExecutionTask extends Task {
 
-    public abstract Task next();
+    public ExecutionTask(String id) {
+        super(id);
+    }
+
+    protected abstract Task next();
 
     protected abstract void perform(WritableExecutionContext executionContext);
 
@@ -30,6 +35,11 @@ public abstract class ExecutionTask extends Task {
     @Override
     public List<Task> followedBy() {
         return List.of(next());
+    }
+
+    @Override
+    protected List<Key> allowedKeys() {
+        return List.empty();
     }
 
 }

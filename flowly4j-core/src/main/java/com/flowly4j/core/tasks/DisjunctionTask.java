@@ -3,6 +3,7 @@ package com.flowly4j.core.tasks;
 import com.flowly4j.core.context.ExecutionContext;
 import com.flowly4j.core.context.ReadableExecutionContext;
 import com.flowly4j.core.errors.DisjunctionTaskError;
+import com.flowly4j.core.input.Key;
 import com.flowly4j.core.tasks.results.Continue;
 import com.flowly4j.core.tasks.results.OnError;
 import com.flowly4j.core.tasks.results.TaskResult;
@@ -11,6 +12,7 @@ import io.vavr.collection.List;
 import io.vavr.control.Option;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.Value;
 
 import static io.vavr.API.$;
 import static io.vavr.API.Case;
@@ -24,26 +26,18 @@ import static io.vavr.Patterns.$Some;
  */
 public abstract class DisjunctionTask extends Task {
 
-    private List<Branch> branches;
-
-    public DisjunctionTask(List<Branch> branches) {
-        this.branches = branches;
+    public DisjunctionTask(String id) {
+        super(id);
     }
 
-    public DisjunctionTask(Branch ...branches) {
-        this.branches = List.of(branches);
-    }
-
-    public DisjunctionTask(Task ifTrue, Task ifFalse, Function1<ReadableExecutionContext, Boolean> condition) {
-        this.branches = List.of(new Branch(condition, ifTrue), new Branch(c -> true, ifFalse));
-    }
+    protected abstract List<Branch> branches();
 
     @Override
     public TaskResult execute(ExecutionContext executionContext) {
         try {
             return Match(next(executionContext)).of(
                 Case($Some($()), Continue::new),
-                Case($(), new OnError(new DisjunctionTaskError()))
+                Case($(), new OnError(new DisjunctionTaskError(getId(), "There is no a valid branch for the given conditions on the task " + getId())))
             );
         } catch (Throwable throwable) {
             return new OnError(throwable);
@@ -52,18 +46,28 @@ public abstract class DisjunctionTask extends Task {
 
     @Override
     public List<Task> followedBy() {
-        return branches.map(branch -> branch.task);
+        return branches().map(branch -> branch.task);
+    }
+
+    @Override
+    protected List<Key> allowedKeys() {
+        return List.empty();
     }
 
     private Option<Task> next(ExecutionContext executionContext) {
-        return branches.find( branch -> branch.condition.apply(executionContext) ).map( branch -> branch.task );
+        return branches().find( branch -> branch.condition.apply(executionContext) ).map( branch -> branch.task );
     }
 
-    @Getter
-    @AllArgsConstructor
+    @Value(staticConstructor = "of")
     public static class Branch {
-        private Function1<ReadableExecutionContext, Boolean> condition;
-        private Task task;
+
+        Function1<ReadableExecutionContext, Boolean> condition;
+        Task task;
+
+        public static List<Branch> of(Function1<ReadableExecutionContext, Boolean> condition, Task ifTrue, Task ifFalse) {
+            return List.of(Branch.of(condition, ifTrue), Branch.of(c -> true, ifFalse));
+        }
+
     }
 
 }

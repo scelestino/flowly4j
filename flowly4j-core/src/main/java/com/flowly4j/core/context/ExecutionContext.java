@@ -83,8 +83,8 @@ public class ExecutionContext implements ReadableExecutionContext, WritableExecu
             this.serializer = serializer;
         }
 
-        public ExecutionContext create(Session session, Param... params) {
-            val variables = List.of(params).toMap(p -> Tuple.of(p.getKey(), p.getValue())).merge(session.getVariables());
+        public ExecutionContext create(Session session, List<Param> params) {
+            val variables = params.toMap(p -> Tuple.of(p.getKey().getIdentifier(), p.getValue())).merge(session.getVariables());
             return new ExecutionContext(session.getSessionId(), variables, serializer);
         }
 

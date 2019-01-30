@@ -16,9 +16,13 @@ import io.vavr.collection.List;
  */
 public abstract class BlockingTask extends Task {
 
-    public abstract Boolean condition(ReadableExecutionContext executionContext);
+    public BlockingTask(String id) {
+        super(id);
+    }
 
-    public abstract Task next();
+    protected abstract Boolean condition(ReadableExecutionContext executionContext);
+
+    protected abstract Task next();
 
     @Override
     public TaskResult execute(ExecutionContext executionContext) {

@@ -10,7 +10,6 @@ import io.vavr.jackson.datatype.VavrModule;
 
 import java.io.IOException;
 
-
 public class Serializer {
 
     private ObjectMapper objectMapper;

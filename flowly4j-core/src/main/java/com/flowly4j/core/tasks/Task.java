@@ -1,10 +1,10 @@
 package com.flowly4j.core.tasks;
 
 import com.flowly4j.core.context.ExecutionContext;
+import com.flowly4j.core.input.Key;
 import com.flowly4j.core.tasks.results.TaskResult;
 import io.vavr.collection.List;
-
-import java.util.Objects;
+import lombok.*;
 
 /**
  * Task is something to do inside a workflow
@@ -12,27 +12,35 @@ import java.util.Objects;
  * There is no possible to use two identical Task in the same workflow
  *
  */
+@Getter
+@ToString
+@EqualsAndHashCode
+@AllArgsConstructor
 public abstract class Task {
 
-    public String getId() {
-        return this.getClass().getSimpleName();
+    private String id;
+
+    /**
+     * Check if all the keys are allowed by this task
+     */
+    public Boolean accept(List<Key> keys) {
+        return keys.forAll( key -> allowedKeys().contains(key) );
     }
 
+    /**
+     * Perform a single step inside the workflow. It depends on the task implementation
+     */
     public abstract TaskResult execute(ExecutionContext executionContext);
 
+    /**
+     * A list of tasks that follows this task
+     */
     public abstract List<Task> followedBy();
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Task task = (Task) o;
-        return Objects.equals(getId(), task.getId());
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(getId());
-    }
+    /**
+     * A list of keys allowed by this task. It means that a session on this task can be
+     * executed with these keys
+     */
+    protected abstract List<Key> allowedKeys();
 
 }
