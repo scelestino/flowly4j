@@ -1,18 +1,13 @@
 package com.flowly4j.core.tasks;
 
 import com.flowly4j.core.context.ExecutionContext;
-import com.flowly4j.core.context.ReadableExecutionContext;
 import com.flowly4j.core.errors.DisjunctionTaskError;
 import com.flowly4j.core.input.Key;
 import com.flowly4j.core.tasks.results.Continue;
 import com.flowly4j.core.tasks.results.OnError;
 import com.flowly4j.core.tasks.results.TaskResult;
-import io.vavr.Function1;
 import io.vavr.collection.List;
 import io.vavr.control.Option;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Value;
 
 import static io.vavr.API.$;
 import static io.vavr.API.Case;
@@ -46,7 +41,7 @@ public abstract class DisjunctionTask extends Task {
 
     @Override
     public List<Task> followedBy() {
-        return branches().map(branch -> branch.task);
+        return branches().map(Branch::getTask);
     }
 
     @Override
@@ -55,19 +50,7 @@ public abstract class DisjunctionTask extends Task {
     }
 
     private Option<Task> next(ExecutionContext executionContext) {
-        return branches().find( branch -> branch.condition.apply(executionContext) ).map( branch -> branch.task );
-    }
-
-    @Value(staticConstructor = "of")
-    public static class Branch {
-
-        Function1<ReadableExecutionContext, Boolean> condition;
-        Task task;
-
-        public static List<Branch> of(Function1<ReadableExecutionContext, Boolean> condition, Task ifTrue, Task ifFalse) {
-            return List.of(Branch.of(condition, ifTrue), Branch.of(c -> true, ifFalse));
-        }
-
+        return branches().find( branch -> branch.getCondition().apply(executionContext) ).map(Branch::getTask);
     }
 
 }

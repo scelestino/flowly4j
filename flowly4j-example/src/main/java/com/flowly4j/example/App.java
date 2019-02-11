@@ -34,30 +34,34 @@ public class App {
 
         String sessionId = workflow.init(Param.of(KEY1, "asd"), Param.of(KEY2, 123));
 
-        tpe.execute(() -> {
-            try {
-                Thread.sleep(2000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            ExecutionResult result = workflow.execute(sessionId, Param.of(KEY3, true));
-            System.out.println(result);
-        });
+        ExecutionResult result = workflow.execute(sessionId, Param.of(KEY3, true));
 
-        tpe.execute(() -> {
-            try {
-                Thread.sleep(2000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            ExecutionResult result = workflow.execute(sessionId);
-            System.out.println(result);
-        });
+        System.out.println(result);
+
+//        tpe.execute(() -> {
+//            try {
+//                Thread.sleep(2000);
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//            }
+//            ExecutionResult result = workflow.execute(sessionId, Param.of(KEY3, true));
+//            System.out.println(result);
+//        });
+
+//        tpe.execute(() -> {
+//            try {
+//                Thread.sleep(2000);
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//            }
+//            ExecutionResult result = workflow.execute(sessionId);
+//            System.out.println(result);
+//        });
 
 
-        tpe.awaitTermination(1000, TimeUnit.MILLISECONDS);
-
-        tpe.shutdown();
+//        tpe.awaitTermination(1000, TimeUnit.MILLISECONDS);
+//
+//        tpe.shutdown();
 
         //ExecutionResult result = workflow.execute(sessionId);
 

@@ -3,6 +3,7 @@ package com.flowly4j.example;
 import com.flowly4j.core.context.WritableExecutionContext;
 import com.flowly4j.core.input.Key;
 import com.flowly4j.core.tasks.ExecutionTask;
+import com.flowly4j.core.tasks.ForkJoinTask;
 import com.flowly4j.core.tasks.Task;
 import io.vavr.collection.List;
 
@@ -17,7 +18,7 @@ public class ExecutionTaskA extends ExecutionTask {
 
     @Override
     public Task next() {
-        return new ExecutionTaskB();
+        return new ForkJoinTask("ForkJoinTask", new ExecutionTaskB());
     }
 
     @Override
