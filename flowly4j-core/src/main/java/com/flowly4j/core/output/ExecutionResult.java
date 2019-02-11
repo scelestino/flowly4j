@@ -5,23 +5,18 @@ import com.flowly4j.core.context.ReadableExecutionContext;
 import com.flowly4j.core.session.Session;
 import com.flowly4j.core.session.Status;
 import com.flowly4j.core.tasks.Task;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.ToString;
+import lombok.*;
 
 /**
  * Result of a Workflow execution
  */
-@Getter
-@ToString
-@AllArgsConstructor( access = AccessLevel.PRIVATE )
+@Value(staticConstructor = "of")
 public class ExecutionResult {
 
-    private String sessionId;
-    private String taskId;
-    private Status status;
-    private ReadableExecutionContext executionContext;
+    String sessionId;
+    String taskId;
+    Status status;
+    ReadableExecutionContext executionContext;
 
     public static ExecutionResult of(Session session, Task task, ExecutionContext executionContext) {
         return new ExecutionResult(session.getSessionId(), task.getId(), session.getStatus(), executionContext);

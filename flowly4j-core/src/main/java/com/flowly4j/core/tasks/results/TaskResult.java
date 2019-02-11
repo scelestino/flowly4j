@@ -18,6 +18,11 @@ public interface TaskResult {
     }
 
     @Unapply
+    static Tuple1<Task> SkipAndContinue(SkipAndContinue result) {
+        return Tuple.of(result.nextTask);
+    }
+
+    @Unapply
     static Tuple1<Throwable> OnError(OnError result) {
         return Tuple.of(result.cause);
     }

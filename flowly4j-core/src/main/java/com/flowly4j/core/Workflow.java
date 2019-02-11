@@ -108,6 +108,22 @@ public class Workflow {
 
                 }),
 
+                Case($SkipAndContinue($()), nextTask -> {
+
+                    // Set the session as running (with new context and next task)
+                    val runningSession = repository.update(session.running(nextTask, executionContext));
+
+                    // On SkipAndContinue & Continue Event
+                    eventListeners.forEach( l -> {
+                        l.onSkip(executionContext, task.getId());
+                        l.onContinue(executionContext, task.getId(), nextTask.getId());
+                    });
+
+                    return execute(nextTask, runningSession, executionContext);
+
+
+                }),
+
                 Case($Block, () -> {
 
                     val blockedSession = repository.update(session.blocked(task));

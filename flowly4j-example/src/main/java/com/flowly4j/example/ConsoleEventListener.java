@@ -24,6 +24,11 @@ public class ConsoleEventListener implements EventListener {
     }
 
     @Override
+    public void onSkip(ReadableExecutionContext executionContext, String currentTask) {
+        System.out.println("Session " + executionContext.getSessionId() + " skip " + currentTask);
+    }
+
+    @Override
     public void onBlock(ReadableExecutionContext executionContext, String currentTask) {
         System.out.println("Session " + executionContext.getSessionId() + " blocked");
     }

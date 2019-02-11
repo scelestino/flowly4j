@@ -12,6 +12,8 @@ public interface EventListener {
 
     void onContinue(ReadableExecutionContext executionContext, String currentTask, String nextTask);
 
+    void onSkip(ReadableExecutionContext executionContext, String currentTask);
+
     void onBlock(ReadableExecutionContext executionContext, String currentTask);
 
     void onFinish(ReadableExecutionContext executionContext, String currentTask);

@@ -6,6 +6,7 @@ import com.flowly4j.core.context.WritableExecutionContext;
 import com.flowly4j.core.input.Key;
 import com.flowly4j.core.tasks.results.Continue;
 import com.flowly4j.core.tasks.results.OnError;
+import com.flowly4j.core.tasks.results.SkipAndContinue;
 import com.flowly4j.core.tasks.results.TaskResult;
 import io.vavr.collection.List;
 
@@ -31,8 +32,11 @@ public abstract class ConditionalTask extends Task {
         try {
             if(condition(executionContext)) {
                 perform(executionContext);
+                return new Continue(next());
+            } else {
+                return new SkipAndContinue(next());
             }
-            return new Continue(next());
+
         } catch (Throwable throwable) {
             return new OnError(throwable);
         }
