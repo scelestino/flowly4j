@@ -1,9 +1,6 @@
 package com.flowly4j.core;
 
-import com.flowly4j.core.errors.ExecutionException;
-import com.flowly4j.core.errors.ParamsNotAllowedException;
-import com.flowly4j.core.errors.SessionCantBeExecutedException;
-import com.flowly4j.core.errors.TaskNotFoundException;
+import com.flowly4j.core.errors.*;
 import com.flowly4j.core.context.ExecutionContext;
 import com.flowly4j.core.context.ExecutionContext.ExecutionContextFactory;
 import com.flowly4j.core.events.EventListener;
@@ -59,7 +56,7 @@ public class Workflow {
     public ExecutionResult execute(String sessionId, List<Param> params) {
 
         // Get Session
-        val session = repository.get(sessionId);
+        val session = repository.get(sessionId).getOrElseThrow( () -> new SessionNotFoundException(sessionId) );
 
         // Can be executed?
         if (!session.isExecutable()) {

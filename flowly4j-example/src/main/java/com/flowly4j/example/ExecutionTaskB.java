@@ -25,6 +25,7 @@ public class ExecutionTaskB extends ExecutionTask {
         executionContext.set(KEY4, Person.of("juan", 20));
         executionContext.unset(KEY2);
         Person x = executionContext.get(KEY4).get();
+
         System.out.println(x);
     }
 

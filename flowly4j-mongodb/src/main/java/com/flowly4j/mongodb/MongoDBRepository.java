@@ -1,19 +1,15 @@
 package com.flowly4j.mongodb;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.PropertyAccessor;
-import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.joda.JodaModule;
 import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 import com.flowly4j.core.repository.Repository;
 import com.flowly4j.core.session.Session;
 import com.mongodb.MongoClient;
-import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.IndexOptions;
+import io.vavr.control.Option;
 import io.vavr.jackson.datatype.VavrModule;
 import lombok.val;
 import org.bson.Document;
@@ -22,7 +18,6 @@ import org.mongojack.JacksonMongoCollection;
 import javax.persistence.OptimisticLockException;
 import javax.persistence.PersistenceException;
 import java.util.HashMap;
-import java.util.Map;
 
 /**
  * MongoDB Repository implementation
@@ -59,9 +54,9 @@ public class MongoDBRepository implements Repository {
      * Load a workflow session by sessionId
      */
     @Override
-    public Session get(String sessionId) {
+    public Option<Session> get(String sessionId) {
         try {
-            return collection.findOne(new Document("sessionId", sessionId));
+            return Option.of(collection.findOne(new Document("sessionId", sessionId)));
         } catch (Throwable throwable) {
             throw new PersistenceException("Error getting session " + sessionId, throwable);
         }

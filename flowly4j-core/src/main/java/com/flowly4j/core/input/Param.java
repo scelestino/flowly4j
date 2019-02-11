@@ -5,8 +5,15 @@ import lombok.*;
 /**
  * Represent a pair key -> value
  */
-@Value(staticConstructor = "of")
+@Getter
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class Param {
-    Key key;
-    Object value;
+
+    private Key key;
+    private Object value;
+
+    public static <T> Param of(Key<T> key, T obj) {
+        return new Param(key, obj);
+    }
+
 }

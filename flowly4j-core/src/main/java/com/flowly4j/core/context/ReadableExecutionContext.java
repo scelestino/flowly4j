@@ -14,7 +14,9 @@ public interface ReadableExecutionContext {
 
     <T> T getOrElse(Key<T> key, Supplier<T> orElse);
 
-    <T> T getOrThrow(Key<T> key);
+    <T> T getOrElseThrow(Key<T> key);
+
+    <T, X extends Throwable> T getOrElseThrow(Key<T> key, Supplier<X> throwable) throws X;
 
     Boolean contains(Key<?> key);
 
