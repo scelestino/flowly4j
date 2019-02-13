@@ -6,6 +6,8 @@ import lombok.*;
  * Represent a pair key -> value
  */
 @Getter
+@ToString
+@EqualsAndHashCode
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class Param {
 
