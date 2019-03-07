@@ -148,10 +148,12 @@ public class Workflow {
 
                 Case($OnError($()), cause -> {
 
+                    val sessionWithError = repository.update(session.onError(task, cause));
+
                     // On Error Event
                     eventListeners.forEach( l -> l.onError(executionContext, task.getId(), cause) );
 
-                    throw new ExecutionException(repository.update(session.onError(task, cause)), task, cause);
+                    throw new ExecutionException(sessionWithError, task, cause);
 
                 })
 
