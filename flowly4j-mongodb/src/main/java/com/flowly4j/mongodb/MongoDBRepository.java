@@ -34,7 +34,7 @@ public class MongoDBRepository implements Repository {
 
         // Configure Object Mapper in order to work with Session
         this.objectMapper = objectMapper;
-        this.objectMapper.registerModule(new VavrModule());
+        this.objectMapper.registerModule(new VavrModule(new VavrModule.Settings().deserializeNullAsEmptyCollection(true)));
         this.objectMapper.registerModule(new JodaModule());
         this.objectMapper.registerModule(new ParameterNamesModule(JsonCreator.Mode.PROPERTIES));
         this.objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);

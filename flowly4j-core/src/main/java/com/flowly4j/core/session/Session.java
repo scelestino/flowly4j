@@ -7,10 +7,12 @@ import io.vavr.Tuple;
 import io.vavr.collection.List;
 import io.vavr.collection.Map;
 import io.vavr.control.Option;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.ToString;
-import org.joda.time.DateTime;
 
+import java.time.Instant;
 import java.util.UUID;
 
 /**
@@ -19,6 +21,7 @@ import java.util.UUID;
  */
 @Getter
 @ToString
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class Session {
 
     /**
@@ -40,7 +43,7 @@ public class Session {
     /**
      * When this session was created
      */
-    private DateTime createAt;
+    private Instant createAt;
 
     /**
      * Session Status
@@ -51,15 +54,6 @@ public class Session {
      * Version of this instance, can be used to implement an optimistic lock
      */
     private Long version;
-
-    private Session(String sessionId, Map<String, Object> variables, Option<Execution> lastExecution, DateTime createAt, Status status, Long version) {
-        this.sessionId = sessionId;
-        this.variables = variables;
-        this.lastExecution = lastExecution;
-        this.createAt = createAt;
-        this.status = status;
-        this.version = version;
-    }
 
     /**
      * This session can be executed if meet some requirements
@@ -101,7 +95,7 @@ public class Session {
      */
     public static Session of(Param... params) {
         Map<String, Object> variables = List.of(params).toMap(p -> Tuple.of(p.getKey().getIdentifier(), p.getValue()));
-        return new Session(UUID.randomUUID().toString(), variables, Option.none(), DateTime.now(), Status.CREATED, 0L);
+        return new Session(UUID.randomUUID().toString(), variables, Option.none(), Instant.now(), Status.CREATED, 0L);
     }
 
 }

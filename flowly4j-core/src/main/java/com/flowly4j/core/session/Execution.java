@@ -2,15 +2,19 @@ package com.flowly4j.core.session;
 
 import com.flowly4j.core.tasks.Task;
 import io.vavr.control.Option;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.ToString;
-import org.joda.time.DateTime;
+
+import java.time.Instant;
 
 /**
  * Execution Information
  */
 @Getter
 @ToString
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class Execution {
 
     /**
@@ -21,25 +25,19 @@ public class Execution {
     /**
      * When it was executed
      */
-    private DateTime at;
+    private Instant at;
 
     /**
      * Optional message about last execution
      */
     private Option<String> message;
 
-    private Execution(String taskId, DateTime at, Option<String> message) {
-        this.taskId = taskId;
-        this.at = at;
-        this.message = message;
-    }
-
     public static Execution of(Task task) {
-        return new Execution(task.getId(), DateTime.now(), Option.none());
+        return new Execution(task.getId(), Instant.now(), Option.none());
     }
 
     public static Execution of(Task task, String message) {
-        return new Execution(task.getId(), DateTime.now(), Option.of(message));
+        return new Execution(task.getId(), Instant.now(), Option.of(message));
     }
 
 }
