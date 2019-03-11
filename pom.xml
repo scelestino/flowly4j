@@ -17,8 +17,8 @@
         <developerConnection>scm:git:git@github.com:despegar/flowly4j.git</developerConnection>
         <url>https://github.com/despegar/flowly4j.git</url>
         <!--<tag>sherman-connectors-1.2.5</tag>-->
-      <tag>HEAD</tag>
-  </scm>
+        <tag>HEAD</tag>
+    </scm>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -139,10 +139,15 @@
     </build>
 
     <distributionManagement>
+        <snapshotRepository>
+            <id>InternalSnapshot</id>
+            <url>http://vmtilcara.servers.despegar.it:8080/nexus/content/repositories/snapshots</url>
+        </snapshotRepository>
         <repository>
-            <id>internal</id>
+            <id>InternalRelease</id>
             <url>http://vmtilcara.servers.despegar.it:8080/nexus/content/repositories/releases</url>
         </repository>
+
     </distributionManagement>
 
 </project>
