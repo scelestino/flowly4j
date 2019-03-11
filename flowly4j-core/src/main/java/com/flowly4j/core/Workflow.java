@@ -68,7 +68,7 @@ public class Workflow {
         val currentTask = getTasks().find(task -> task.getId().equals(taskId)).getOrElseThrow(() -> new TaskNotFoundException(taskId, "Task " + taskId + " doesn't belong to Session " + sessionId));
 
         // Are params allowed?
-        List<Key> keys = params.map(Param::getKey);
+        val keys = params.map(Param::getKey);
         if(!currentTask.accept(keys)) {
             throw new ParamsNotAllowedException(taskId, keys, "Task " + currentTask + " doesn't accept one or more of the following keys " + keys.map(Key::getIdentifier));
         }
