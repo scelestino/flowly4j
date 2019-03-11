@@ -3,7 +3,6 @@ package com.flowly4j.mongodb;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.joda.JodaModule;
 import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 import com.flowly4j.core.repository.Repository;
 import com.flowly4j.core.session.Session;
@@ -11,6 +10,8 @@ import com.mongodb.MongoClient;
 import com.mongodb.client.model.IndexOptions;
 import io.vavr.control.Option;
 import io.vavr.jackson.datatype.VavrModule;
+import lombok.AccessLevel;
+import lombok.experimental.FieldDefaults;
 import lombok.val;
 import org.bson.Document;
 import org.mongojack.JacksonMongoCollection;
@@ -25,17 +26,17 @@ import java.util.HashMap;
  * It uses Optimistic Lock to handle race condition
  *
  */
+@FieldDefaults( level = AccessLevel.PROTECTED, makeFinal = true)
 public class MongoDBRepository implements Repository {
 
-    protected final JacksonMongoCollection<Session> collection;
-    protected final ObjectMapper objectMapper;
+    JacksonMongoCollection<Session> collection;
+    ObjectMapper objectMapper;
 
     public MongoDBRepository(MongoClient client, String databaseName, String collectionName, ObjectMapper objectMapper) {
 
         // Configure Object Mapper in order to work with Session
         this.objectMapper = objectMapper;
         this.objectMapper.registerModule(new VavrModule(new VavrModule.Settings().deserializeNullAsEmptyCollection(true)));
-        this.objectMapper.registerModule(new JodaModule());
         this.objectMapper.registerModule(new ParameterNamesModule(JsonCreator.Mode.PROPERTIES));
         this.objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         this.objectMapper.addMixIn(Session.class, SessionMixIn.class);

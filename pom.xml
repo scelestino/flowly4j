@@ -11,7 +11,14 @@
     <packaging>pom</packaging>
 
     <name>flowly4j</name>
-    <url>https://github.com/scelestino/flowly4j</url>
+    <url>https://github.com/despegar/flowly4j</url>
+
+    <scm>
+        <connection>scm:git:git@github.com:despegar/flowly4j.git</connection>
+        <developerConnection>scm:git:git@github.com:despegar/flowly4j.git</developerConnection>
+        <url>https://github.com/despegar/flowly4j.git</url>
+        <!--<tag>sherman-connectors-1.2.5</tag>-->
+    </scm>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -123,7 +130,19 @@
                 </executions>
             </plugin>
 
+            <plugin>
+                <artifactId>maven-release-plugin</artifactId>
+                <version>2.5.3</version>
+            </plugin>
+
         </plugins>
     </build>
+
+    <distributionManagement>
+        <repository>
+            <id>internal</id>
+            <url>http://vmtilcara.servers.despegar.it:8080/nexus/content/repositories/releases</url>
+        </repository>
+    </distributionManagement>
 
 </project>
