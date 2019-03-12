@@ -5,7 +5,7 @@
 
     <groupId>com.flowly4j</groupId>
     <artifactId>flowly4j</artifactId>
-    <version>0.6-SNAPSHOT</version>
+    <version>0.6</version>
 
     <packaging>pom</packaging>
 
@@ -17,7 +17,7 @@
         <developerConnection>scm:git:git@github.com:despegar/flowly4j.git</developerConnection>
         <url>https://github.com/despegar/flowly4j.git</url>
         <!--<tag>sherman-connectors-1.2.5</tag>-->
-        <tag>HEAD</tag>
+        <tag>flowly4j-0.6</tag>
     </scm>
 
     <properties>
