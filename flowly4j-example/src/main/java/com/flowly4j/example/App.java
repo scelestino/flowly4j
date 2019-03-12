@@ -7,13 +7,12 @@ import com.flowly4j.core.input.Param;
 import com.flowly4j.core.Workflow;
 import lombok.val;
 
+import java.time.Instant;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import static com.flowly4j.example.CustomKeys.KEY1;
-import static com.flowly4j.example.CustomKeys.KEY2;
-import static com.flowly4j.example.CustomKeys.KEY3;
+import static com.flowly4j.example.CustomKeys.*;
 
 
 /**
@@ -29,9 +28,10 @@ public class App {
 
         Workflow workflow = new WorkflowA();
 
-        String sessionId = workflow.init(Param.of(KEY1, "asd"), Param.of(KEY2, 123));
+        String sessionId = workflow.init(Param.of(KEY1, "asd"), Param.of(KEY2, 123), Param.of(KEY6, Instant.now()));
 
         ExecutionResult result = workflow.execute(sessionId, Param.of(KEY3, true));
+
         System.out.println(result);
 
 //        tpe.execute(() -> {

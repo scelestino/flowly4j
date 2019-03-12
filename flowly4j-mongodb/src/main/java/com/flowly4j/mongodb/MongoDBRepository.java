@@ -1,8 +1,11 @@
 package com.flowly4j.mongodb;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 import com.flowly4j.core.repository.Repository;
 import com.flowly4j.core.session.Session;
@@ -13,11 +16,16 @@ import io.vavr.jackson.datatype.VavrModule;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import lombok.val;
+import org.bson.BsonDocument;
+import org.bson.BsonDocumentWrapper;
 import org.bson.Document;
 import org.mongojack.JacksonMongoCollection;
 
 import javax.persistence.OptimisticLockException;
 import javax.persistence.PersistenceException;
+import java.io.IOException;
+import java.time.Instant;
+import java.util.Date;
 import java.util.HashMap;
 
 /**
@@ -38,7 +46,10 @@ public class MongoDBRepository implements Repository {
         this.objectMapper = objectMapper;
         this.objectMapper.registerModule(new VavrModule(new VavrModule.Settings().deserializeNullAsEmptyCollection(true)));
         this.objectMapper.registerModule(new ParameterNamesModule(JsonCreator.Mode.PROPERTIES));
+        this.objectMapper.registerModule(new JavaTimeModule());
         this.objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        this.objectMapper.configure(SerializationFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS, false);
+        this.objectMapper.configure(DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS, false);
         this.objectMapper.addMixIn(Session.class, SessionMixIn.class);
 
         val mongoCollection = client.getDatabase(databaseName).getCollection(collectionName);

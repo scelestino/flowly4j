@@ -6,8 +6,9 @@ import com.flowly4j.core.tasks.ExecutionTask;
 import com.flowly4j.core.tasks.Task;
 import io.vavr.collection.List;
 
+import java.time.Instant;
+
 import static com.flowly4j.example.CustomKeys.*;
-import static io.vavr.API.For;
 
 public class ExecutionTaskA extends ExecutionTask {
 
@@ -24,7 +25,8 @@ public class ExecutionTaskA extends ExecutionTask {
     protected void perform(WritableExecutionContext executionContext) {
         executionContext.set(KEY1, "esta es una prueba");
         executionContext.set(KEY2, 123);
-        executionContext.set(KEY4, Person.of("juan", 123));
+        //executionContext.set(KEY6, Instant.now());
+        executionContext.set(KEY4, Person.of("juan", 123, Instant.now()));
     }
 
     @Override
