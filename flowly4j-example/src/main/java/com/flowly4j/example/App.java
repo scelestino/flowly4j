@@ -30,7 +30,9 @@ public class App {
 
         String sessionId = workflow.init(Param.of(KEY1, "asd"), Param.of(KEY2, 123), Param.of(KEY6, Instant.now()));
 
-        ExecutionResult result = workflow.execute(sessionId, Param.of(KEY3, true));
+//        ExecutionResult result = workflow.execute(sessionId, Param.of(KEY3, true));
+
+        val result = workflow.currentAllowedKeys(sessionId);
 
         System.out.println(result);
 

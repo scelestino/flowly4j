@@ -59,7 +59,7 @@ public abstract class DisjunctionTask extends Task {
     }
 
     @Override
-    protected List<Key> allowedKeys() {
+    public List<Key> allowedKeys() {
         return List.empty();
     }
 

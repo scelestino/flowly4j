@@ -30,8 +30,8 @@ public class ExecutionTaskA extends ExecutionTask {
     }
 
     @Override
-    protected List<Key> allowedKeys() {
-        return List.of(KEY3);
+    public List<Key> allowedKeys() {
+        return List.of(KEY2, KEY1, KEY6);
     }
 
 }

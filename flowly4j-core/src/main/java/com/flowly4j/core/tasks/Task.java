@@ -41,6 +41,6 @@ public abstract class Task {
      * A list of keys allowed by this task. It means that a session on this task can be
      * executed with these keys
      */
-    protected abstract List<Key> allowedKeys();
+    public abstract List<Key> allowedKeys();
 
 }

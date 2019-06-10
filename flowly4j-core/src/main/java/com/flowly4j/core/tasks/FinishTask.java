@@ -32,7 +32,7 @@ public abstract class FinishTask extends Task {
     }
 
     @Override
-    protected List<Key> allowedKeys() {
+    public List<Key> allowedKeys() {
         return List.empty();
     }
 

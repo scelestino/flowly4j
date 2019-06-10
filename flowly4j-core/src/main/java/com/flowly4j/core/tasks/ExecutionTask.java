@@ -38,7 +38,7 @@ public abstract class ExecutionTask extends Task {
     }
 
     @Override
-    protected List<Key> allowedKeys() {
+    public List<Key> allowedKeys() {
         return List.empty();
     }
 

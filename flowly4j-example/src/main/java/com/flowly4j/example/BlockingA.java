@@ -27,7 +27,7 @@ public class BlockingA extends BlockingTask {
     }
 
     @Override
-    protected List<Key> allowedKeys() {
+    public List<Key> allowedKeys() {
         return List.empty();
     }
 

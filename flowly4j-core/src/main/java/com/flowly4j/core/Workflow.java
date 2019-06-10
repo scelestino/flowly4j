@@ -32,6 +32,12 @@ public class Workflow {
      */
     public String init(Param... params) {
 
+        // Are params allowed?
+        val keys = List.of(params).map(Param::getKey);
+        if(!initialTask.accept(keys)) {
+            throw new ParamsNotAllowedException(initialTask.getId(), keys, "Task " + initialTask + " doesn't accept one or more of the following keys " + keys.map(Key::getIdentifier));
+        }
+
         val sessionId = repository.insert(Session.of(params)).getSessionId();
 
         // On Init Event
@@ -158,6 +164,22 @@ public class Workflow {
                 })
 
         );
+
+    }
+
+    /**
+     * It returns current allowed keys
+     */
+    public List<Key> currentAllowedKeys(String sessionId) {
+
+        // Get Session
+        val session = repository.get(sessionId).getOrElseThrow( () -> new SessionNotFoundException(sessionId) );
+
+        // Get current Task
+        val taskId = session.getLastExecution().map(Execution::getTaskId).getOrElse(initialTask.getId());
+        val currentTask = getTasks().find(task -> task.getId().equals(taskId)).getOrElseThrow(() -> new TaskNotFoundException(taskId, "Task " + taskId + " doesn't belong to Session " + sessionId));
+
+        return currentTask.allowedKeys();
 
     }
 
