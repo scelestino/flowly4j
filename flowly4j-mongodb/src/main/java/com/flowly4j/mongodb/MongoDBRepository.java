@@ -44,12 +44,6 @@ public class MongoDBRepository implements Repository {
 
         // Configure Object Mapper in order to work with Session
         this.objectMapper = objectMapper;
-        this.objectMapper.registerModule(new VavrModule(new VavrModule.Settings().deserializeNullAsEmptyCollection(true)));
-        this.objectMapper.registerModule(new ParameterNamesModule(JsonCreator.Mode.PROPERTIES));
-//        this.objectMapper.registerModule(new JavaTimeModule());
-//        this.objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-//        this.objectMapper.configure(SerializationFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS, false);
-//        this.objectMapper.configure(DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS, false);
         this.objectMapper.addMixIn(Session.class, SessionMixIn.class);
 
         val mongoCollection = client.getDatabase(databaseName).getCollection(collectionName);

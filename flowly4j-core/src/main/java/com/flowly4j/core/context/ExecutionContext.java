@@ -1,6 +1,5 @@
 package com.flowly4j.core.context;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.flowly4j.core.errors.KeyNotFoundException;
 import com.flowly4j.core.input.Param;
 import com.flowly4j.core.input.Key;
@@ -74,7 +73,7 @@ public class ExecutionContext implements ReadableExecutionContext, WritableExecu
     }
 
     public Map<String, Object> getVariables() {
-        return serializer.deepCopy(variables, new TypeReference<Map<String, Object>>() {});
+        return variables;
     }
 
     public static class ExecutionContextFactory {
