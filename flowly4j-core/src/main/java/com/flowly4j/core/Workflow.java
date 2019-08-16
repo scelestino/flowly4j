@@ -79,53 +79,59 @@ public class Workflow {
             throw new ParamsNotAllowedException(taskId, keys, "Task " + currentTask + " doesn't accept one or more of the following keys " + keys.map(Key::getIdentifier));
         }
 
-        // Create Execution Context
-        val executionContext = executionContextFactory.create(session, params);
-
         // Set the session as running
-        val runningSession = repository.update(session.running(currentTask, executionContext));
+        val runningSession = repository.update(session.resume(currentTask, params));
 
-        // On Start Event
-        if(currentTask.equals(initialTask)) {
-            eventListeners.forEach( l -> l.onStart(executionContext) );
-        }
+        eventListeners.forEach( l -> {
+
+            // Create Execution Context
+            val executionContext = executionContextFactory.create(runningSession);
+
+            // On Start or Resume Event
+            if(session.getLastExecution().isDefined()) {
+                l.onResume(sessionId, executionContext);
+            } else {
+                l.onStart(sessionId, executionContext);
+            }
+
+        });
 
         // Execute
-        return execute(currentTask, runningSession, executionContext);
+        return execute(currentTask, runningSession);
 
     }
 
-    private ExecutionResult execute(Task task, Session session, ExecutionContext executionContext) {
+    private ExecutionResult execute(Task task, Session session) {
+
+        val executionContext = executionContextFactory.create(session);
 
         // Execute the current task
-        val taskResult = task.execute(executionContext);
-
-        return Match(taskResult).of(
+        return Match(task.execute(executionContext)).of(
 
                 Case($Continue($()), nextTask -> {
 
                     // Set the session as running (with new context and next task)
-                    val runningSession = repository.update(session.running(nextTask, executionContext));
+                    val runningSession = repository.update(session.continuee(nextTask, executionContext));
 
                     // On Continue Event
-                    eventListeners.forEach( l -> l.onContinue(executionContext, task.getId(), nextTask.getId()) );
+                    eventListeners.forEach( l -> l.onContinue(session.getSessionId(), executionContext, task.getId(), nextTask.getId()) );
 
-                    return execute(nextTask, runningSession, executionContext);
+                    return execute(nextTask, runningSession);
 
                 }),
 
                 Case($SkipAndContinue($()), nextTask -> {
 
                     // Set the session as running (with new context and next task)
-                    val runningSession = repository.update(session.running(nextTask, executionContext));
+                    val runningSession = repository.update(session.continuee(nextTask, executionContext));
 
                     // On SkipAndContinue & Continue Event
                     eventListeners.forEach( l -> {
-                        l.onSkip(executionContext, task.getId());
-                        l.onContinue(executionContext, task.getId(), nextTask.getId());
+                        l.onSkip(session.getSessionId(), executionContext, task.getId());
+                        l.onContinue(session.getSessionId(), executionContext, task.getId(), nextTask.getId());
                     });
 
-                    return execute(nextTask, runningSession, executionContext);
+                    return execute(nextTask, runningSession);
 
 
                 }),
@@ -135,7 +141,7 @@ public class Workflow {
                     val blockedSession = repository.update(session.blocked(task));
 
                     // On Block Event
-                    eventListeners.forEach( l -> l.onBlock(executionContext, task.getId()) );
+                    eventListeners.forEach( l -> l.onBlock(session.getSessionId(), executionContext, task.getId()) );
 
                     return ExecutionResult.of(blockedSession, task, executionContext);
 
@@ -146,9 +152,19 @@ public class Workflow {
                     val finishedSession = repository.update(session.finished(task));
 
                     // On Finish Event
-                    eventListeners.forEach( l -> l.onFinish(executionContext, task.getId()) );
+                    eventListeners.forEach( l -> l.onFinish(session.getSessionId(), executionContext, task.getId()) );
 
                     return ExecutionResult.of(finishedSession, task, executionContext);
+
+                }),
+
+                Case($ToRetry($(), $()), (cause, attempts) -> {
+
+                    val sessionWithRetry = repository.update(session.toRetry(task, cause, attempts));
+
+                    eventListeners.forEach( l -> l.onToRetry(session.getSessionId(), executionContext, task.getId(), cause, attempts) );
+
+                    throw new ExecutionException(sessionWithRetry, task, cause);
 
                 }),
 
@@ -157,7 +173,7 @@ public class Workflow {
                     val sessionWithError = repository.update(session.onError(task, cause));
 
                     // On Error Event
-                    eventListeners.forEach( l -> l.onError(executionContext, task.getId(), cause) );
+                    eventListeners.forEach( l -> l.onError(session.getSessionId(), executionContext, task.getId(), cause) );
 
                     throw new ExecutionException(sessionWithError, task, cause);
 

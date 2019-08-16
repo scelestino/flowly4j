@@ -2,6 +2,7 @@ package com.flowly4j.core.events;
 
 import com.flowly4j.core.context.ReadableExecutionContext;
 import com.flowly4j.core.input.Param;
+import com.flowly4j.core.session.Attempts;
 import io.vavr.collection.List;
 
 public abstract class BaseEventListener implements EventListener {
@@ -11,27 +12,35 @@ public abstract class BaseEventListener implements EventListener {
     }
 
     @Override
-    public void onStart(ReadableExecutionContext executionContext) {
+    public void onStart(String sessionId, ReadableExecutionContext executionContext) {
     }
 
     @Override
-    public void onContinue(ReadableExecutionContext executionContext, String currentTask, String nextTask) {
+    public void onResume(String sessionId, ReadableExecutionContext executionContext) {
     }
 
     @Override
-    public void onSkip(ReadableExecutionContext executionContext, String currentTask) {
+    public void onContinue(String sessionId, ReadableExecutionContext executionContext, String currentTask, String nextTask) {
     }
 
     @Override
-    public void onBlock(ReadableExecutionContext executionContext, String currentTask) {
+    public void onSkip(String sessionId, ReadableExecutionContext executionContext, String currentTask) {
     }
 
     @Override
-    public void onFinish(ReadableExecutionContext executionContext, String currentTask) {
+    public void onBlock(String sessionId, ReadableExecutionContext executionContext, String currentTask) {
     }
 
     @Override
-    public void onError(ReadableExecutionContext executionContext, String currentTask, Throwable cause) {
+    public void onFinish(String sessionId, ReadableExecutionContext executionContext, String currentTask) {
+    }
+
+    @Override
+    public void onError(String sessionId, ReadableExecutionContext executionContext, String currentTask, Throwable cause) {
+    }
+
+    @Override
+    public void onToRetry(String sessionId, ReadableExecutionContext executionContext, String currentTask, Throwable cause, Attempts attempts) {
     }
 
 }

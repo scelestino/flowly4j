@@ -7,10 +7,7 @@ import io.vavr.Tuple;
 import io.vavr.collection.List;
 import io.vavr.collection.Map;
 import io.vavr.control.Option;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.ToString;
+import lombok.*;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -41,6 +38,11 @@ public class Session {
     private Option<Execution> lastExecution;
 
     /**
+     * Information about last attempts executions
+     */
+    private Option<Attempts> attempts;
+
+    /**
      * When this session was created
      */
     private Instant createAt;
@@ -65,29 +67,44 @@ public class Session {
     /**
      * Create a copy of this session with Running State
      */
-    public Session running(Task task, ExecutionContext executionContext) {
-        return new Session(sessionId, executionContext.getVariables(), Option.of(Execution.of(task)), createAt, Status.RUNNING, version);
+    public Session resume(Task task, List<Param> params) {
+        val v = params.toMap(p -> Tuple.of(p.getKey().getIdentifier(), p.getValue())).merge(variables);
+        return new Session(sessionId, v, Option.of(Execution.of(task)), attempts.map(Attempts::newAttempt), createAt, Status.RUNNING, version);
+    }
+
+    /**
+     * Create a copy of this session with Running State
+     */
+    public Session continuee(Task task, ExecutionContext executionContext) {
+        return new Session(sessionId, executionContext.getVariables(), Option.of(Execution.of(task)), Option.none(), createAt, Status.RUNNING, version);
     }
 
     /**
      * Create a copy of this session with Blocked State
      */
     public Session blocked(Task task) {
-        return new Session(sessionId, variables, Option.of(Execution.of(task)), createAt, Status.BLOCKED, version);
+        return new Session(sessionId, variables, Option.of(Execution.of(task)), Option.none(), createAt, Status.BLOCKED, version);
     }
 
     /**
      * Create a copy of this session with Finished State
      */
     public Session finished(Task task) {
-        return new Session(sessionId, variables, Option.of(Execution.of(task)), createAt, Status.FINISHED, version);
+        return new Session(sessionId, variables, Option.of(Execution.of(task)), Option.none(), createAt, Status.FINISHED, version);
     }
 
     /**
      * Create a copy of this session with On Error State
      */
     public Session onError(Task task, Throwable throwable) {
-        return new Session(sessionId, variables, Option.of(Execution.of(task, throwable.getMessage())), createAt, Status.ERROR, version);
+        return new Session(sessionId, variables, Option.of(Execution.of(task, throwable.getMessage())), attempts.map(Attempts::stopRetrying), createAt, Status.ERROR, version);
+    }
+
+    /**
+     * Create a copy of this session with To Retry State
+     */
+    public Session toRetry(Task task, Throwable throwable, Attempts attempts) {
+        return new Session(sessionId, variables, Option.of(Execution.of(task, throwable.getMessage())), Option.of(attempts), createAt, Status.TO_RETRY, version );
     }
 
     /**
@@ -95,7 +112,7 @@ public class Session {
      */
     public static Session of(Param... params) {
         Map<String, Object> variables = List.of(params).toMap(p -> Tuple.of(p.getKey().getIdentifier(), p.getValue()));
-        return new Session(UUID.randomUUID().toString(), variables, Option.none(), Instant.now(), Status.CREATED, 0L);
+        return new Session(UUID.randomUUID().toString(), variables, Option.none(), Option.none(), Instant.now(), Status.CREATED, 0L);
     }
 
 }

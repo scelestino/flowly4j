@@ -1,16 +1,13 @@
 package com.flowly4j.core.context;
 
 import com.flowly4j.core.errors.KeyNotFoundException;
-import com.flowly4j.core.input.Param;
 import com.flowly4j.core.input.Key;
 import com.flowly4j.core.serialization.Serializer;
+import com.flowly4j.core.session.Attempts;
 import com.flowly4j.core.session.Session;
-import io.vavr.Tuple;
-import io.vavr.collection.List;
 import io.vavr.collection.Map;
 import io.vavr.control.Option;
 import lombok.ToString;
-import lombok.val;
 
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -21,13 +18,13 @@ import java.util.function.Supplier;
 @ToString(exclude = "serializer")
 public class ExecutionContext implements ReadableExecutionContext, WritableExecutionContext {
 
-    private String sessionId;
     private Map<String, Object> variables;
+    private Option<Attempts> attempts;
     private Serializer serializer;
 
-    private ExecutionContext(String sessionId, Map<String, Object> variables, Serializer serializer) {
-        this.sessionId = sessionId;
+    private ExecutionContext(Map<String, Object> variables, Option<Attempts> attempts, Serializer serializer) {
         this.variables = variables;
+        this.attempts = attempts;
         this.serializer = serializer;
     }
 
@@ -67,11 +64,6 @@ public class ExecutionContext implements ReadableExecutionContext, WritableExecu
         return get(key).forAll(condition);
     }
 
-    @Override
-    public String getSessionId() {
-        return sessionId;
-    }
-
     public Map<String, Object> getVariables() {
         return variables;
     }
@@ -84,9 +76,8 @@ public class ExecutionContext implements ReadableExecutionContext, WritableExecu
             this.serializer = serializer;
         }
 
-        public ExecutionContext create(Session session, List<Param> params) {
-            val variables = params.toMap(p -> Tuple.of(p.getKey().getIdentifier(), p.getValue())).merge(session.getVariables());
-            return new ExecutionContext(session.getSessionId(), variables, serializer);
+        public ExecutionContext create(Session session) {
+            return new ExecutionContext(session.getVariables(), session.getAttempts(), serializer);
         }
 
     }

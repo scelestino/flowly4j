@@ -1,9 +1,11 @@
 package com.flowly4j.core.tasks.results;
 
+import com.flowly4j.core.session.Attempts;
 import com.flowly4j.core.tasks.Task;
 import io.vavr.Tuple;
 import io.vavr.Tuple0;
 import io.vavr.Tuple1;
+import io.vavr.Tuple2;
 import io.vavr.match.annotation.Unapply;
 
 /**
@@ -36,5 +38,8 @@ public interface TaskResult {
     static Tuple0 Finish(Finish result) {
         return Tuple.empty();
     }
+
+    @Unapply
+    static Tuple2<Throwable, Attempts> ToRetry(ToRetry result) { return Tuple.of(result.cause, result.attempts); }
 
 }

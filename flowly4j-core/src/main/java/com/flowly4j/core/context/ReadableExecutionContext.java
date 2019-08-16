@@ -8,8 +8,6 @@ import java.util.function.Supplier;
 
 public interface ReadableExecutionContext {
 
-    String getSessionId();
-
     <T> Option<T> get(Key<T> key);
 
     <T> T getOrElse(Key<T> key, Supplier<T> orElse);
