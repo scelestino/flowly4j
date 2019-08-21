@@ -3,8 +3,10 @@ package com.flowly4j.core.tasks;
 
 import com.flowly4j.core.context.ExecutionContext;
 import com.flowly4j.core.input.Key;
+import com.flowly4j.core.tasks.compose.Trait;
 import com.flowly4j.core.tasks.results.Finish;
 import com.flowly4j.core.tasks.results.TaskResult;
+import io.vavr.Function2;
 import io.vavr.collection.List;
 
 /**
@@ -17,13 +19,11 @@ import io.vavr.collection.List;
  */
 public abstract class FinishTask extends Task {
 
-    public FinishTask(String id) {
-        super(id);
+    public FinishTask() {
     }
 
-    @Override
-    public TaskResult execute(ExecutionContext executionContext) {
-        return new Finish();
+    public FinishTask(String id) {
+        super(id);
     }
 
     @Override
@@ -34,6 +34,11 @@ public abstract class FinishTask extends Task {
     @Override
     public List<Key> allowedKeys() {
         return List.empty();
+    }
+
+    @Override
+    public TaskResult execute(ExecutionContext executionContext) {
+        return new Finish();
     }
 
 }

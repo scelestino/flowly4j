@@ -1,0 +1,50 @@
+package com.flowly4j.core.tasks.compose.retry;
+
+import com.flowly4j.core.context.ExecutionContext;
+import com.flowly4j.core.session.Attempts;
+import com.flowly4j.core.tasks.Task;
+import com.flowly4j.core.tasks.compose.Trait;
+import com.flowly4j.core.tasks.compose.retry.scheduling.SchedulingStrategy;
+import com.flowly4j.core.tasks.compose.retry.stopping.StoppingStrategy;
+import com.flowly4j.core.tasks.results.TaskResult;
+import com.flowly4j.core.tasks.results.ToRetry;
+import io.vavr.Function1;
+import io.vavr.control.Option;
+import lombok.val;
+
+import java.time.Instant;
+
+import static com.flowly4j.core.tasks.results.TaskResultPatterns.$OnError;
+import static io.vavr.API.*;
+
+public class Retry implements Trait {
+
+    private SchedulingStrategy schedulingStrategy;
+    private StoppingStrategy stoppingStrategy;
+
+    public Retry(SchedulingStrategy schedulingStrategy, StoppingStrategy stoppingStrategy) {
+        this.schedulingStrategy = schedulingStrategy;
+        this.stoppingStrategy = stoppingStrategy;
+    }
+
+    @Override
+    public Function1<ExecutionContext, TaskResult> compose(Function1<ExecutionContext, TaskResult> next) {
+        return context -> {
+            val attempts = context.getAttempts().getOrElse(new Attempts(1, Instant.now(), Option.none()));
+            System.out.println("RETRY");
+            if(stoppingStrategy.shouldRetry(context, attempts)) {
+                return Match(next.apply(context)).of(
+                    Case($OnError($()), cause -> new ToRetry(cause, attempts.withNextRetry(schedulingStrategy.nextRetry(context, attempts)))),
+                    Case($(), otherwise -> otherwise)
+                );
+            } else {
+                return next.apply(context);
+            }
+        };
+    }
+
+    public static <T extends Task> Function1<T, Trait> of(SchedulingStrategy schedulingStrategy, StoppingStrategy stoppingStrategy) {
+        return parent -> new Retry(schedulingStrategy, stoppingStrategy);
+    }
+
+}

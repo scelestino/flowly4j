@@ -3,18 +3,12 @@ package com.flowly4j.example;
 import com.flowly4j.core.context.WritableExecutionContext;
 import com.flowly4j.core.tasks.ExecutionTask;
 import com.flowly4j.core.tasks.Task;
-import io.vavr.collection.Map;
-import io.vavr.control.Option;
 
 import java.time.Instant;
 
 import static com.flowly4j.example.CustomKeys.*;
 
 public class ExecutionTaskB extends ExecutionTask {
-
-    public ExecutionTaskB() {
-        super("ExecutionTaskB");
-    }
 
     @Override
     public Task next() {

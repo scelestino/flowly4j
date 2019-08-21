@@ -68,6 +68,10 @@ public class ExecutionContext implements ReadableExecutionContext, WritableExecu
         return variables;
     }
 
+    public Option<Attempts> getAttempts() {
+        return attempts;
+    }
+
     public static class ExecutionContextFactory {
 
         private Serializer serializer;

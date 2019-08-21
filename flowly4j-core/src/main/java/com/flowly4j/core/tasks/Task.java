@@ -2,9 +2,13 @@ package com.flowly4j.core.tasks;
 
 import com.flowly4j.core.context.ExecutionContext;
 import com.flowly4j.core.input.Key;
+import com.flowly4j.core.tasks.compose.Trait;
 import com.flowly4j.core.tasks.results.TaskResult;
+import io.vavr.Function1;
+import io.vavr.Function2;
 import io.vavr.collection.List;
 import lombok.*;
+import lombok.experimental.FieldDefaults;
 
 /**
  * Task is something to do inside a workflow
@@ -15,10 +19,23 @@ import lombok.*;
 @Getter
 @ToString
 @EqualsAndHashCode
-@AllArgsConstructor
+@FieldDefaults(level = AccessLevel.PROTECTED, makeFinal = true)
 public abstract class Task {
 
-    private String id;
+    String id;
+
+    public Task() {
+        this.id = this.getClass().getSimpleName();
+    }
+
+    public Task(String id) {
+        this.id = id;
+    }
+
+    /**
+     * Perform a single step inside the workflow. It depends on the task implementation
+     */
+    public abstract TaskResult execute(ExecutionContext executionContext);
 
     /**
      * Check if all the keys are allowed by this task
@@ -26,11 +43,6 @@ public abstract class Task {
     public Boolean accept(List<Key> keys) {
         return keys.forAll( key -> allowedKeys().contains(key) );
     }
-
-    /**
-     * Perform a single step inside the workflow. It depends on the task implementation
-     */
-    public abstract TaskResult execute(ExecutionContext executionContext);
 
     /**
      * A list of tasks that follows this task

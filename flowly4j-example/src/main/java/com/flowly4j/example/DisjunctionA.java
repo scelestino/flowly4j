@@ -5,13 +5,13 @@ import io.vavr.collection.List;
 
 public class DisjunctionA extends DisjunctionTask {
 
-    public DisjunctionA() {
-        super("DisjunctionA", true);
+    @Override
+    protected Boolean isBlockOnNoCondition() {
+        return true;
     }
 
     @Override
     protected List<Branch> branches() {
-//        return List.of(Branch.of(c -> false, new BlockingA()), Branch.of(c -> false, new BlockingA()));
         return Branch.of(c -> true, new BlockingA(), new FinishA());
     }
 

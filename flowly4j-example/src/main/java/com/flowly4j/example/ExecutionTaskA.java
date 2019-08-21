@@ -4,6 +4,8 @@ import com.flowly4j.core.context.WritableExecutionContext;
 import com.flowly4j.core.input.Key;
 import com.flowly4j.core.tasks.ExecutionTask;
 import com.flowly4j.core.tasks.Task;
+import com.flowly4j.core.tasks.compose.condition.Condition;
+import com.flowly4j.core.tasks.compose.retry.Retry;
 import io.vavr.collection.List;
 
 import java.time.Instant;
@@ -13,7 +15,7 @@ import static com.flowly4j.example.CustomKeys.*;
 public class ExecutionTaskA extends ExecutionTask {
 
     public ExecutionTaskA() {
-        super("ExecutionTaskA");
+        super(Retry.of(Strategies.TWO_MINUTES, Strategies.TEN_TIMES), Condition.of(c -> !c.contains(KEY1)));
     }
 
     @Override
