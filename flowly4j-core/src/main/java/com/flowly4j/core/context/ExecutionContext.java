@@ -44,12 +44,14 @@ public class ExecutionContext implements ReadableExecutionContext, WritableExecu
         return get(key).getOrElseThrow(throwable);
     }
 
-    public <T> void set(Key<T> key, T value) {
+    public <T> ExecutionContext set(Key<T> key, T value) {
         variables = variables.put(key.getIdentifier(), serializer.deepCopy(value, key.getTypeReference()));
+        return this;
     }
 
-    public void unset(Key<?> key) {
+    public ExecutionContext unset(Key<?> key) {
         variables = variables.remove(key.getIdentifier());
+        return this;
     }
 
     public Boolean contains(Key<?> key) {

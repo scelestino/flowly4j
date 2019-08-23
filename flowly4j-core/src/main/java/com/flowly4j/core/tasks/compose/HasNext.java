@@ -1,4 +1,4 @@
-package com.flowly4j.core.tasks.compose.condition;
+package com.flowly4j.core.tasks.compose;
 
 import com.flowly4j.core.tasks.Task;
 

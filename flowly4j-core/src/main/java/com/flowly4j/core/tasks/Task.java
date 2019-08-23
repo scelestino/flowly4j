@@ -53,6 +53,18 @@ public abstract class Task {
      * A list of keys allowed by this task. It means that a session on this task can be
      * executed with these keys
      */
-    public abstract List<Key> allowedKeys();
+    public final List<Key> allowedKeys() {
+        return internalAllowedKeys().pushAll(customAllowedKeys());
+    }
+
+    /**
+     *  Keys configured by Traits
+     */
+    protected abstract List<Key> internalAllowedKeys();
+
+    /**
+     *  Keys configured by this Task
+     */
+    protected abstract List<Key> customAllowedKeys();
 
 }

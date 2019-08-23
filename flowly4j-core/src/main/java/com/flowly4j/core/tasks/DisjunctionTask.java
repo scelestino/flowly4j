@@ -29,31 +29,29 @@ import static io.vavr.Patterns.$Some;
 @FieldDefaults(level = AccessLevel.PROTECTED, makeFinal = true)
 public abstract class DisjunctionTask extends Task {
 
-    private List<Trait> traits;
+    private final List<Trait> traits;
+    private final List<Branch> branches;
 
     @SafeVarargs
     public DisjunctionTask(Function1<DisjunctionTask, Trait>... fs) {
-        this.traits = List.of(fs).map(f -> f.apply(this));
+        this.traits = List.of(fs).map(f -> f.apply(this)).reverse();
+        this.branches = branches();
     }
 
     @SafeVarargs
     public DisjunctionTask(String id, Function1<DisjunctionTask, Trait>... fs) {
         super(id);
-        this.traits = List.of(fs).map(f -> f.apply(this));
+        this.traits = List.of(fs).map(f -> f.apply(this)).reverse();
+        this.branches = branches();
     }
 
     @Override
-    public List<Task> followedBy() {
-        return branches().map(branch -> branch.task);
+    public final List<Task> followedBy() {
+        return branches.map(branch -> branch.task);
     }
 
     @Override
-    public List<Key> allowedKeys() {
-        return List.empty();
-    }
-
-    @Override
-    public TaskResult execute(ExecutionContext executionContext) {
+    public final TaskResult execute(ExecutionContext executionContext) {
         return traits.foldRight(this::exec, Trait::compose).apply(executionContext);
     }
 
@@ -68,25 +66,36 @@ public abstract class DisjunctionTask extends Task {
         }
     }
 
+    private Option<Task> next(ExecutionContext executionContext) {
+        return branches.find( branch -> branch.condition.apply(executionContext) ).map( branch -> branch.task );
+    }
+
     /**
-     * This task is going to block instead of fail when there are no conditions that match
+     *  Keys configured by Traits
+     */
+    @Override
+    protected final List<Key> internalAllowedKeys() {
+        return traits.flatMap(Trait::allowedKeys);
+    }
+
+    /**
+     * This Task is going to block instead of fail when there are no conditions that match
      */
     protected abstract Boolean isBlockOnNoCondition();
 
+    /**
+     * Branches supported by this Task
+     */
     protected abstract List<Branch> branches();
-
-    private Option<Task> next(ExecutionContext executionContext) {
-        return branches().find( branch -> branch.condition.apply(executionContext) ).map( branch -> branch.task );
-    }
 
     @Value(staticConstructor = "of")
     public static class Branch {
 
-        Function1<ReadableExecutionContext, Boolean> condition;
         Task task;
+        Function1<ReadableExecutionContext, Boolean> condition;
 
         public static List<Branch> of(Function1<ReadableExecutionContext, Boolean> condition, Task ifTrue, Task ifFalse) {
-            return List.of(Branch.of(condition, ifTrue), Branch.of(c -> true, ifFalse));
+            return List.of(Branch.of(ifTrue, condition), Branch.of(ifFalse, c -> true));
         }
 
     }

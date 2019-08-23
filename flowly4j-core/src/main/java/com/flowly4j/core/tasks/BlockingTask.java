@@ -2,8 +2,9 @@ package com.flowly4j.core.tasks;
 
 import com.flowly4j.core.context.ExecutionContext;
 import com.flowly4j.core.context.ReadableExecutionContext;
+import com.flowly4j.core.input.Key;
 import com.flowly4j.core.tasks.compose.Trait;
-import com.flowly4j.core.tasks.compose.condition.HasNext;
+import com.flowly4j.core.tasks.compose.HasNext;
 import com.flowly4j.core.tasks.results.Block;
 import com.flowly4j.core.tasks.results.Continue;
 import com.flowly4j.core.tasks.results.OnError;
@@ -18,28 +19,28 @@ import io.vavr.collection.List;
  */
 public abstract class BlockingTask extends Task implements HasNext {
 
-    private List<Trait> traits;
+    private final List<Trait> traits;
 
     @SafeVarargs
     public BlockingTask(Function1<BlockingTask, Trait>... fs) {
-        this.traits = List.of(fs).map(f -> f.apply(this));
+        this.traits = List.of(fs).map(f -> f.apply(this)).reverse();
     }
 
     @SafeVarargs
     public BlockingTask(String id, Function1<BlockingTask, Trait>... fs) {
         super(id);
-        this.traits = List.of(fs).map(f -> f.apply(this));
+        this.traits = List.of(fs).map(f -> f.apply(this)).reverse();
     }
 
     public abstract Task next();
 
     @Override
-    public List<Task> followedBy() {
+    public final List<Task> followedBy() {
         return List.of(next());
     }
 
     @Override
-    public TaskResult execute(ExecutionContext executionContext) {
+    public final TaskResult execute(ExecutionContext executionContext) {
         return traits.foldRight(this::exec, Trait::compose).apply(executionContext);
     }
 
@@ -49,6 +50,14 @@ public abstract class BlockingTask extends Task implements HasNext {
         } catch (Throwable throwable) {
             return new OnError(throwable);
         }
+    }
+
+    /**
+     *  Keys configured by Traits
+     */
+    @Override
+    protected final List<Key> internalAllowedKeys() {
+        return traits.flatMap(Trait::allowedKeys);
     }
 
     protected abstract Boolean condition(ReadableExecutionContext executionContext);

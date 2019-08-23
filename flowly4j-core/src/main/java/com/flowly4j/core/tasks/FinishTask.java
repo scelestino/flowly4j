@@ -27,18 +27,25 @@ public abstract class FinishTask extends Task {
     }
 
     @Override
-    public List<Task> followedBy() {
+    public final List<Task> followedBy() {
         return List.empty();
     }
 
     @Override
-    public List<Key> allowedKeys() {
-        return List.empty();
-    }
-
-    @Override
-    public TaskResult execute(ExecutionContext executionContext) {
+    public final TaskResult execute(ExecutionContext executionContext) {
         return new Finish();
     }
+
+    /**
+     *  Keys configured by Traits
+     */
+    @Override
+    protected final List<Key> internalAllowedKeys() { return List.empty(); }
+
+    /**
+     *  Keys configured by this Task
+     */
+    @Override
+    protected final List<Key> customAllowedKeys() { return List.empty(); }
 
 }

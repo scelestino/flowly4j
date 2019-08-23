@@ -28,8 +28,9 @@ public class BlockingA extends BlockingTask {
         return new FinishA();
     }
 
+
     @Override
-    public List<Key> allowedKeys() {
+    protected List<Key> customAllowedKeys() {
         return List.empty();
     }
 

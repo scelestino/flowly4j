@@ -1,7 +1,6 @@
 package com.flowly4j.core.session;
 
 import io.vavr.control.Option;
-import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.ToString;
