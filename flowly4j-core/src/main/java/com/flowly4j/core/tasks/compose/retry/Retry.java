@@ -50,6 +50,11 @@ public class Retry implements Trait {
         return List.empty();
     }
 
+    @Override
+    public Integer order() {
+        return 100;
+    }
+
     public static <T extends Task> Function1<T, Trait> of(SchedulingStrategy schedulingStrategy, StoppingStrategy stoppingStrategy) {
         return parent -> new Retry(schedulingStrategy, stoppingStrategy);
     }

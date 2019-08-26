@@ -33,6 +33,11 @@ public class Condition implements Trait {
         return List.empty();
     }
 
+    @Override
+    public Integer order() {
+        return 100;
+    }
+
     public static <T extends HasNext> Function1<T, Trait> of(Function1<ReadableExecutionContext, Boolean> c) {
         return parent -> new Condition(parent, c);
     }

@@ -3,8 +3,10 @@ package com.flowly4j.mongodb;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flowly4j.core.repository.Repository;
 import com.flowly4j.core.session.Session;
+import com.flowly4j.core.session.Status;
 import com.mongodb.MongoClient;
 import com.mongodb.client.model.IndexOptions;
+import io.vavr.collection.Iterator;
 import io.vavr.control.Option;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
@@ -14,6 +16,8 @@ import org.mongojack.JacksonMongoCollection;
 
 import javax.persistence.OptimisticLockException;
 import javax.persistence.PersistenceException;
+import java.sql.Date;
+import java.time.Instant;
 import java.util.HashMap;
 
 /**
@@ -113,4 +117,23 @@ public class MongoDBRepository implements Repository {
 
     }
 
+    @Override
+    public Iterator<String> getToRetry() {
+
+        try {
+
+            val query = new HashMap<String, Object>() {
+                {
+                    put("status", Status.TO_RETRY);
+                    put("attempts.nextRetry", new Document("$lte", Date.from(Instant.now())));
+                }
+            };
+
+            return Iterator.ofAll(collection.find(new Document(query)).sort(new Document("attempts.nextRetry", 1)).map(Session::getSessionId));
+
+        } catch (Throwable throwable) {
+            throw new PersistenceException("Error getting sessions to retry", throwable);
+        }
+
+    }
 }

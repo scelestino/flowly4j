@@ -9,4 +9,5 @@ import io.vavr.collection.List;
 public interface Trait {
     Function1<ExecutionContext, TaskResult> compose(Function1<ExecutionContext, TaskResult> next);
     List<Key> allowedKeys();
+    Integer order();
 }

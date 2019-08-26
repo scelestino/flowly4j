@@ -34,14 +34,14 @@ public abstract class DisjunctionTask extends Task {
 
     @SafeVarargs
     public DisjunctionTask(Function1<DisjunctionTask, Trait>... fs) {
-        this.traits = List.of(fs).map(f -> f.apply(this)).reverse();
+        this.traits = List.of(fs).map(f -> f.apply(this)).sortBy(Trait::order);
         this.branches = branches();
     }
 
     @SafeVarargs
     public DisjunctionTask(String id, Function1<DisjunctionTask, Trait>... fs) {
         super(id);
-        this.traits = List.of(fs).map(f -> f.apply(this)).reverse();
+        this.traits = List.of(fs).map(f -> f.apply(this)).sortBy(Trait::order);
         this.branches = branches();
     }
 

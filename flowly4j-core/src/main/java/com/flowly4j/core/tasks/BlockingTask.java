@@ -23,13 +23,13 @@ public abstract class BlockingTask extends Task implements HasNext {
 
     @SafeVarargs
     public BlockingTask(Function1<BlockingTask, Trait>... fs) {
-        this.traits = List.of(fs).map(f -> f.apply(this)).reverse();
+        this.traits = List.of(fs).map(f -> f.apply(this)).sortBy(Trait::order);
     }
 
     @SafeVarargs
     public BlockingTask(String id, Function1<BlockingTask, Trait>... fs) {
         super(id);
-        this.traits = List.of(fs).map(f -> f.apply(this)).reverse();
+        this.traits = List.of(fs).map(f -> f.apply(this)).sortBy(Trait::order);
     }
 
     public abstract Task next();

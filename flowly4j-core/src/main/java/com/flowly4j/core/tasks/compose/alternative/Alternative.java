@@ -36,6 +36,11 @@ public class Alternative implements Trait {
         return List.empty();
     }
 
+    @Override
+    public Integer order() {
+        return 0;
+    }
+
     public static <T extends Task> Function1<T, Trait> of(Task nextOnError) {
         return parent -> new Alternative(nextOnError);
     }

@@ -31,6 +31,11 @@ public class Skippable implements Trait {
         return List.of(SKIP);
     }
 
+    @Override
+    public Integer order() {
+        return 100;
+    }
+
     public static <T extends HasNext> Function1<T, Trait> of() {
         return Skippable::new;
     }

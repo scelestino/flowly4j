@@ -20,13 +20,13 @@ public abstract class ExecutionTask extends Task implements HasNext {
 
     @SafeVarargs
     public ExecutionTask(Function1<ExecutionTask, Trait>... fs) {
-        this.traits = List.of(fs).map(f -> f.apply(this)).reverse();
+        this.traits = List.of(fs).map(f -> f.apply(this)).sortBy(Trait::order);
     }
 
     @SafeVarargs
     public ExecutionTask(String id, Function1<ExecutionTask, Trait>... fs) {
         super(id);
-        this.traits = List.of(fs).map(f -> f.apply(this)).reverse();
+        this.traits = List.of(fs).map(f -> f.apply(this)).sortBy(Trait::order);
     }
 
     public abstract Task next();

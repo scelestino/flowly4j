@@ -11,6 +11,7 @@ import com.flowly4j.core.repository.Repository;
 import com.flowly4j.core.session.Execution;
 import com.flowly4j.core.session.Session;
 import com.flowly4j.core.tasks.Task;
+import io.vavr.collection.Iterator;
 import io.vavr.collection.List;
 import lombok.val;
 
@@ -197,6 +198,13 @@ public class Workflow {
 
         return currentTask.allowedKeys();
 
+    }
+
+    /**
+     * Get sessions to Retry
+     */
+    public Iterator<String> getToRetry() {
+        return repository.getToRetry();
     }
 
     /**
