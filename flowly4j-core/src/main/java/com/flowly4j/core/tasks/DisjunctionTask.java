@@ -29,33 +29,29 @@ import static io.vavr.Patterns.$Some;
 @FieldDefaults(level = AccessLevel.PROTECTED, makeFinal = true)
 public abstract class DisjunctionTask extends Task {
 
-    private final List<Trait> traits;
     private final List<Branch> branches;
 
-    @SafeVarargs
-    public DisjunctionTask(Function1<DisjunctionTask, Trait>... fs) {
-        this.traits = List.of(fs).map(f -> f.apply(this)).sortBy(Trait::order);
+    public DisjunctionTask() {
         this.branches = branches();
     }
 
-    @SafeVarargs
-    public DisjunctionTask(String id, Function1<DisjunctionTask, Trait>... fs) {
+    public DisjunctionTask(String id) {
         super(id);
-        this.traits = List.of(fs).map(f -> f.apply(this)).sortBy(Trait::order);
         this.branches = branches();
     }
 
+    /**
+     * A list of tasks that follows this task
+     */
     @Override
     public final List<Task> followedBy() {
         return branches.map(branch -> branch.task);
     }
 
-    @Override
-    public final TaskResult execute(ExecutionContext executionContext) {
-        return traits.foldRight(this::exec, Trait::compose).apply(executionContext);
-    }
-
-    private TaskResult exec(ExecutionContext executionContext) {
+    /**
+     * Whatever this task is going to do
+     */
+    protected final TaskResult exec(ExecutionContext executionContext) {
         try {
             return Match(next(executionContext)).of(
                     Case($Some($()), Continue::new),
@@ -64,10 +60,6 @@ public abstract class DisjunctionTask extends Task {
         } catch (Throwable throwable) {
             return new OnError(throwable);
         }
-    }
-
-    private Option<Task> next(ExecutionContext executionContext) {
-        return branches.find( branch -> branch.condition.apply(executionContext) ).map( branch -> branch.task );
     }
 
     /**
@@ -79,6 +71,21 @@ public abstract class DisjunctionTask extends Task {
     }
 
     /**
+     * Traits implemented by this task
+     */
+    @Override
+    protected final List<Trait> traits() {
+        return customTraits().map(f -> f.apply(this)).sortBy(Trait::order);
+    }
+
+    /**
+     * Custom Traits implemented by this task
+     */
+    protected List<Function1<DisjunctionTask, Trait>> customTraits() {
+        return List.empty();
+    }
+
+    /**
      * This Task is going to block instead of fail when there are no conditions that match
      */
     protected abstract Boolean isBlockOnNoCondition();
@@ -87,6 +94,10 @@ public abstract class DisjunctionTask extends Task {
      * Branches supported by this Task
      */
     protected abstract List<Branch> branches();
+
+    private Option<Task> next(ExecutionContext executionContext) {
+        return branches.find( branch -> branch.condition.apply(executionContext) ).map( branch -> branch.task );
+    }
 
     @Value(staticConstructor = "of")
     public static class Branch {

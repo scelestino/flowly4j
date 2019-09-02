@@ -12,35 +12,35 @@ public abstract class BaseEventListener implements EventListener {
     }
 
     @Override
-    public void onStart(String sessionId, ReadableExecutionContext executionContext) {
+    public void onStart(ReadableExecutionContext executionContext) {
     }
 
     @Override
-    public void onResume(String sessionId, ReadableExecutionContext executionContext) {
+    public void onResume(ReadableExecutionContext executionContext) {
     }
 
     @Override
-    public void onContinue(String sessionId, ReadableExecutionContext executionContext, String currentTask, String nextTask) {
+    public void onContinue(ReadableExecutionContext executionContext, String currentTask, String nextTask) {
     }
 
     @Override
-    public void onSkip(String sessionId, ReadableExecutionContext executionContext, String currentTask) {
+    public void onSkip(ReadableExecutionContext executionContext, String currentTask) {
     }
 
     @Override
-    public void onBlock(String sessionId, ReadableExecutionContext executionContext, String currentTask) {
+    public void onBlock(ReadableExecutionContext executionContext, String currentTask) {
     }
 
     @Override
-    public void onFinish(String sessionId, ReadableExecutionContext executionContext, String currentTask) {
+    public void onFinish(ReadableExecutionContext executionContext, String currentTask) {
     }
 
     @Override
-    public void onError(String sessionId, ReadableExecutionContext executionContext, String currentTask, Throwable cause) {
+    public void onError(ReadableExecutionContext executionContext, String currentTask, Throwable cause) {
     }
 
     @Override
-    public void onToRetry(String sessionId, ReadableExecutionContext executionContext, String currentTask, Throwable cause, Attempts attempts) {
+    public void onToRetry(ReadableExecutionContext executionContext, String currentTask, Throwable cause, Attempts attempts) {
     }
 
 }

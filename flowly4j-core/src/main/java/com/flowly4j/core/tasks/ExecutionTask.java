@@ -16,32 +16,27 @@ import io.vavr.collection.List;
  */
 public abstract class ExecutionTask extends Task implements HasNext {
 
-    private final List<Trait> traits;
-
-    @SafeVarargs
-    public ExecutionTask(Function1<ExecutionTask, Trait>... fs) {
-        this.traits = List.of(fs).map(f -> f.apply(this)).sortBy(Trait::order);
+    public ExecutionTask() {
     }
 
-    @SafeVarargs
-    public ExecutionTask(String id, Function1<ExecutionTask, Trait>... fs) {
+    public ExecutionTask(String id) {
         super(id);
-        this.traits = List.of(fs).map(f -> f.apply(this)).sortBy(Trait::order);
     }
 
     public abstract Task next();
 
+    /**
+     * A list of tasks that follows this task
+     */
     @Override
     public final List<Task> followedBy() {
         return List.of(next());
     }
 
-    @Override
-    public final TaskResult execute(ExecutionContext executionContext) {
-        return traits.foldRight(this::exec, Trait::compose).apply(executionContext);
-    }
-
-    private TaskResult exec(ExecutionContext executionContext) {
+    /**
+     * Whatever this task is going to do
+     */
+    protected final TaskResult exec(ExecutionContext executionContext) {
         try {
             perform(executionContext);
             return new Continue(next());
@@ -59,6 +54,21 @@ public abstract class ExecutionTask extends Task implements HasNext {
     }
 
     /**
+     * Traits implemented by this task
+     */
+    @Override
+    protected final List<Trait> traits() {
+        return customTraits().map(f -> f.apply(this)).sortBy(Trait::order);
+    }
+
+    /**
+     * Custom Traits implemented by this task
+     */
+    protected List<Function1<ExecutionTask, Trait>> customTraits() {
+        return List.empty();
+    }
+
+    /**
      *  Keys configured by this Task
      */
     @Override
@@ -66,6 +76,9 @@ public abstract class ExecutionTask extends Task implements HasNext {
         return List.empty();
     }
 
+    /**
+     * Whatever this task is going to do
+     */
     protected abstract void perform(WritableExecutionContext executionContext);
 
 }

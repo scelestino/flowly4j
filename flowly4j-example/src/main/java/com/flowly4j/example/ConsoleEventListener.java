@@ -15,43 +15,43 @@ public class ConsoleEventListener implements EventListener {
     }
 
     @Override
-    public void onStart(String sessionId, ReadableExecutionContext executionContext) {
-        System.out.println("Session " + sessionId + " started");
+    public void onStart(ReadableExecutionContext executionContext) {
+        System.out.println("Session " + executionContext.getSessionId() + " started");
     }
 
     @Override
-    public void onResume(String sessionId, ReadableExecutionContext executionContext) {
-        System.out.println("Session " + sessionId + " resumed");
+    public void onResume(ReadableExecutionContext executionContext) {
+        System.out.println("Session " + executionContext.getSessionId() + " resumed");
     }
 
     @Override
-    public void onContinue(String sessionId, ReadableExecutionContext executionContext, String currentTask, String nextTask) {
-        System.out.println("Session " + sessionId + " continue from " + currentTask + " to " + nextTask);
+    public void onContinue(ReadableExecutionContext executionContext, String currentTask, String nextTask) {
+        System.out.println("Session " + executionContext.getSessionId() + " continue from " + currentTask + " to " + nextTask);
     }
 
     @Override
-    public void onSkip(String sessionId, ReadableExecutionContext executionContext, String currentTask) {
-        System.out.println("Session " + sessionId + " skip " + currentTask);
+    public void onSkip(ReadableExecutionContext executionContext, String currentTask) {
+        System.out.println("Session " + executionContext.getSessionId() + " skip " + currentTask);
     }
 
     @Override
-    public void onBlock(String sessionId, ReadableExecutionContext executionContext, String currentTask) {
-        System.out.println("Session " + sessionId + " blocked");
+    public void onBlock(ReadableExecutionContext executionContext, String currentTask) {
+        System.out.println("Session " + executionContext.getSessionId() + " blocked");
     }
 
     @Override
-    public void onFinish(String sessionId, ReadableExecutionContext executionContext, String currentTask) {
-        System.out.println("Session " + sessionId + " finished");
+    public void onFinish(ReadableExecutionContext executionContext, String currentTask) {
+        System.out.println("Session " + executionContext.getSessionId() + " finished");
     }
 
     @Override
-    public void onError(String sessionId, ReadableExecutionContext executionContext, String currentTask, Throwable cause) {
-        System.out.println("Session " + sessionId + " with task " + currentTask + " with error " + cause.getMessage());
+    public void onError(ReadableExecutionContext executionContext, String currentTask, Throwable cause) {
+        System.out.println("Session " + executionContext.getSessionId() + " with task " + currentTask + " with error " + cause.getMessage());
     }
 
     @Override
-    public void onToRetry(String sessionId, ReadableExecutionContext executionContext, String currentTask, Throwable cause, Attempts attempts) {
-        System.out.println("Session " + sessionId + " with task " + currentTask + " with error " + cause.getMessage() + " and retry");
+    public void onToRetry(ReadableExecutionContext executionContext, String currentTask, Throwable cause, Attempts attempts) {
+        System.out.println("Session " + executionContext.getSessionId() + " with task " + currentTask + " with error " + cause.getMessage() + " and retry");
     }
 
 }

@@ -16,7 +16,6 @@
         <connection>scm:git:git@github.com:despegar/flowly4j.git</connection>
         <developerConnection>scm:git:git@github.com:despegar/flowly4j.git</developerConnection>
         <url>https://github.com/despegar/flowly4j.git</url>
-        <!--<tag>sherman-connectors-1.2.5</tag>-->
         <tag>HEAD</tag>
     </scm>
 

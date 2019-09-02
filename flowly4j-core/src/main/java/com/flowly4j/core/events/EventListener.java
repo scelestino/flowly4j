@@ -9,20 +9,20 @@ public interface EventListener {
 
     void onInitialization(String sessionId, List<Param> params);
 
-    void onStart(String sessionId, ReadableExecutionContext executionContext);
+    void onStart(ReadableExecutionContext executionContext);
 
-    void onResume(String sessionId, ReadableExecutionContext executionContext);
+    void onResume(ReadableExecutionContext executionContext);
 
-    void onContinue(String sessionId, ReadableExecutionContext executionContext, String currentTask, String nextTask);
+    void onContinue(ReadableExecutionContext executionContext, String currentTask, String nextTask);
 
-    void onSkip(String sessionId, ReadableExecutionContext executionContext, String currentTask);
+    void onSkip(ReadableExecutionContext executionContext, String currentTask);
 
-    void onBlock(String sessionId, ReadableExecutionContext executionContext, String currentTask);
+    void onBlock(ReadableExecutionContext executionContext, String currentTask);
 
-    void onFinish(String sessionId, ReadableExecutionContext executionContext, String currentTask);
+    void onFinish(ReadableExecutionContext executionContext, String currentTask);
 
-    void onError(String sessionId, ReadableExecutionContext executionContext, String currentTask, Throwable cause);
+    void onError(ReadableExecutionContext executionContext, String currentTask, Throwable cause);
 
-    void onToRetry(String sessionId, ReadableExecutionContext executionContext, String currentTask, Throwable cause, Attempts attempts);
+    void onToRetry(ReadableExecutionContext executionContext, String currentTask, Throwable cause, Attempts attempts);
 
 }

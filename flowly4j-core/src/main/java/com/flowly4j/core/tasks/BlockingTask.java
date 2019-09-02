@@ -19,32 +19,27 @@ import io.vavr.collection.List;
  */
 public abstract class BlockingTask extends Task implements HasNext {
 
-    private final List<Trait> traits;
-
-    @SafeVarargs
-    public BlockingTask(Function1<BlockingTask, Trait>... fs) {
-        this.traits = List.of(fs).map(f -> f.apply(this)).sortBy(Trait::order);
+    public BlockingTask() {
     }
 
-    @SafeVarargs
-    public BlockingTask(String id, Function1<BlockingTask, Trait>... fs) {
+    public BlockingTask(String id) {
         super(id);
-        this.traits = List.of(fs).map(f -> f.apply(this)).sortBy(Trait::order);
     }
 
     public abstract Task next();
 
+    /**
+     * A list of tasks that follows this task
+     */
     @Override
     public final List<Task> followedBy() {
         return List.of(next());
     }
 
-    @Override
-    public final TaskResult execute(ExecutionContext executionContext) {
-        return traits.foldRight(this::exec, Trait::compose).apply(executionContext);
-    }
-
-    private TaskResult exec(ExecutionContext executionContext) {
+    /**
+     * Whatever this task is going to do
+     */
+    protected final TaskResult exec(ExecutionContext executionContext) {
         try {
             return condition(executionContext) ? new Continue(next()) : new Block();
         } catch (Throwable throwable) {
@@ -60,6 +55,24 @@ public abstract class BlockingTask extends Task implements HasNext {
         return traits.flatMap(Trait::allowedKeys);
     }
 
+    /**
+     * Traits implemented by this task
+     */
+    @Override
+    protected final List<Trait> traits() {
+        return customTraits().map(f -> f.apply(this)).sortBy(Trait::order);
+    }
+
+    /**
+     * Custom Traits implemented by this task
+     */
+    protected List<Function1<BlockingTask, Trait>> customTraits() {
+        return List.empty();
+    }
+
+    /**
+     * It blocks until given condition
+     */
     protected abstract Boolean condition(ReadableExecutionContext executionContext);
 
 }

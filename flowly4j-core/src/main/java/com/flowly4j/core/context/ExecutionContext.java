@@ -18,14 +18,21 @@ import java.util.function.Supplier;
 @ToString(exclude = "serializer")
 public class ExecutionContext implements ReadableExecutionContext, WritableExecutionContext {
 
+    private String sessionId;
     private Map<String, Object> variables;
     private Option<Attempts> attempts;
     private Serializer serializer;
 
-    private ExecutionContext(Map<String, Object> variables, Option<Attempts> attempts, Serializer serializer) {
+    private ExecutionContext(String sessionId, Map<String, Object> variables, Option<Attempts> attempts, Serializer serializer) {
+        this.sessionId = sessionId;
         this.variables = variables;
         this.attempts = attempts;
         this.serializer = serializer;
+    }
+
+    @Override
+    public String getSessionId() {
+        return sessionId;
     }
 
     public <T> Option<T> get(Key<T> key) {
@@ -83,7 +90,7 @@ public class ExecutionContext implements ReadableExecutionContext, WritableExecu
         }
 
         public ExecutionContext create(Session session) {
-            return new ExecutionContext(session.getVariables(), session.getAttempts(), serializer);
+            return new ExecutionContext(session.getSessionId(), session.getVariables(), session.getAttempts(), serializer);
         }
 
     }

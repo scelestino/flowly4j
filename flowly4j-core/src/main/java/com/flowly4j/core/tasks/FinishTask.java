@@ -6,7 +6,6 @@ import com.flowly4j.core.input.Key;
 import com.flowly4j.core.tasks.compose.Trait;
 import com.flowly4j.core.tasks.results.Finish;
 import com.flowly4j.core.tasks.results.TaskResult;
-import io.vavr.Function2;
 import io.vavr.collection.List;
 
 /**
@@ -26,13 +25,19 @@ public abstract class FinishTask extends Task {
         super(id);
     }
 
+    /**
+     * A list of tasks that follows this task
+     */
     @Override
     public final List<Task> followedBy() {
         return List.empty();
     }
 
+    /**
+     * Whatever this task is going to do
+     */
     @Override
-    public final TaskResult execute(ExecutionContext executionContext) {
+    protected final TaskResult exec(ExecutionContext executionContext) {
         return new Finish();
     }
 
@@ -41,6 +46,15 @@ public abstract class FinishTask extends Task {
      */
     @Override
     protected final List<Key> internalAllowedKeys() { return List.empty(); }
+
+
+    /**
+     * Traits implemented by this task
+     */
+    @Override
+    protected final List<Trait> traits() {
+        return List.empty();
+    }
 
     /**
      *  Keys configured by this Task
