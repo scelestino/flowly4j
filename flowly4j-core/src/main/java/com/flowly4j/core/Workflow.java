@@ -226,7 +226,7 @@ public class Workflow {
         return getTasks(initialTask, List.empty());
     }
     private List<Task> getTasks(Task currentTask, List<Task> accum) {
-        return accum.contains(currentTask) ? accum : currentTask.followedBy().foldRight(accum.append(currentTask), this::getTasks);
+        return accum.exists( t -> t.sameThan(currentTask) ) ? accum : currentTask.followedBy().foldRight(accum.append(currentTask), this::getTasks);
     }
 
     private void checkConsistency() {

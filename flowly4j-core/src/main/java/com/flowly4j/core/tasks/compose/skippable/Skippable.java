@@ -21,7 +21,6 @@ public class Skippable implements Trait {
     @Override
     public Function1<ExecutionContext, TaskResult> compose(Function1<ExecutionContext, TaskResult> next) {
         return executionContext -> {
-            System.out.println("SKIPPING");
             return executionContext.get(SKIP).contains(true) ? new SkipAndContinue(parent.next()) : next.apply(executionContext.unset(SKIP));
         };
     }

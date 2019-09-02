@@ -4,11 +4,11 @@ import com.flowly4j.core.context.ExecutionContext;
 import com.flowly4j.core.input.Key;
 import com.flowly4j.core.tasks.compose.Trait;
 import com.flowly4j.core.tasks.results.TaskResult;
-import io.vavr.Function1;
-import io.vavr.Function2;
 import io.vavr.collection.List;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+
+import java.util.UUID;
 
 /**
  * Task is something to do inside a workflow
@@ -16,23 +16,25 @@ import lombok.experimental.FieldDefaults;
  * There is no possible to use two identical Task in the same workflow
  *
  */
-@Getter
 @ToString
-@EqualsAndHashCode
-@FieldDefaults(level = AccessLevel.PROTECTED, makeFinal = true)
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public abstract class Task {
 
+    @Getter
     String id;
-    List<Trait> traits;
+
+    @Getter(lazy = true)
+    List<Trait> traits = traits();
+
+    @Getter
+    String internalID = UUID.randomUUID().toString();
 
     public Task() {
         this.id = this.getClass().getSimpleName();
-        this.traits = traits();
     }
 
     public Task(String id) {
         this.id = id;
-        this.traits = traits();
     }
 
     /**
@@ -47,7 +49,7 @@ public abstract class Task {
      * Perform a single step inside the workflow. It depends on the task implementation
      */
     public final TaskResult execute(ExecutionContext executionContext) {
-        return traits.foldRight(this::exec, Trait::compose).apply(executionContext);
+        return getTraits().foldRight(this::exec, Trait::compose).apply(executionContext);
     }
 
     /**
@@ -55,6 +57,13 @@ public abstract class Task {
      */
     public final Boolean accept(List<Key> keys) {
         return keys.forAll( key -> allowedKeys().contains(key) );
+    }
+
+    /**
+     * Used to check identity between Tasks
+     */
+    public final boolean sameThan(Task that) {
+        return getInternalID().equals(that.getInternalID());
     }
 
     /**

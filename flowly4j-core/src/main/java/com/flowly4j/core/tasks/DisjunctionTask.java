@@ -13,6 +13,7 @@ import io.vavr.Function1;
 import io.vavr.collection.List;
 import io.vavr.control.Option;
 import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.Value;
 import lombok.experimental.FieldDefaults;
 
@@ -29,15 +30,14 @@ import static io.vavr.Patterns.$Some;
 @FieldDefaults(level = AccessLevel.PROTECTED, makeFinal = true)
 public abstract class DisjunctionTask extends Task {
 
-    private final List<Branch> branches;
+    @Getter(lazy = true)
+    private final List<Branch> branches = branches();
 
     public DisjunctionTask() {
-        this.branches = branches();
     }
 
     public DisjunctionTask(String id) {
         super(id);
-        this.branches = branches();
     }
 
     /**
@@ -45,7 +45,7 @@ public abstract class DisjunctionTask extends Task {
      */
     @Override
     public final List<Task> followedBy() {
-        return branches.map(branch -> branch.task);
+        return getBranches().map(branch -> branch.task);
     }
 
     /**
@@ -67,7 +67,7 @@ public abstract class DisjunctionTask extends Task {
      */
     @Override
     protected final List<Key> internalAllowedKeys() {
-        return traits.flatMap(Trait::allowedKeys);
+        return getTraits().flatMap(Trait::allowedKeys);
     }
 
     /**
@@ -96,7 +96,7 @@ public abstract class DisjunctionTask extends Task {
     protected abstract List<Branch> branches();
 
     private Option<Task> next(ExecutionContext executionContext) {
-        return branches.find( branch -> branch.condition.apply(executionContext) ).map( branch -> branch.task );
+        return getBranches().find( branch -> branch.condition.apply(executionContext) ).map( branch -> branch.task );
     }
 
     @Value(staticConstructor = "of")

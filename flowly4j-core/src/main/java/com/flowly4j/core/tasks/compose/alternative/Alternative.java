@@ -23,7 +23,6 @@ public class Alternative implements Trait {
     @Override
     public Function1<ExecutionContext, TaskResult> compose(Function1<ExecutionContext, TaskResult> next) {
         return executionContext -> {
-            System.out.println("ALTERNATIVE");
             return Match(next.apply(executionContext)).of(
                     Case($OnError($()), cause -> new Continue(nextOnError)),
                     Case($(), otherwise -> otherwise)

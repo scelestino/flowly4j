@@ -33,7 +33,6 @@ public class Retry implements Trait {
     public Function1<ExecutionContext, TaskResult> compose(Function1<ExecutionContext, TaskResult> next) {
         return context -> {
             val attempts = context.getAttempts().getOrElse(new Attempts(1, Instant.now(), Option.none()));
-            System.out.println("RETRY");
             if(stoppingStrategy.shouldRetry(context, attempts)) {
                 return Match(next.apply(context)).of(
                     Case($OnError($()), cause -> new ToRetry(cause, attempts.withNextRetry(schedulingStrategy.nextRetry(context, attempts)))),

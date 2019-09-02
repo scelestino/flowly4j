@@ -50,7 +50,7 @@ public abstract class ExecutionTask extends Task implements HasNext {
      */
     @Override
     protected final List<Key> internalAllowedKeys() {
-        return traits.flatMap(Trait::allowedKeys);
+        return getTraits().flatMap(Trait::allowedKeys);
     }
 
     /**

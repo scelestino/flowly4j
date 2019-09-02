@@ -23,7 +23,6 @@ public class Condition implements Trait {
     @Override
     public Function1<ExecutionContext, TaskResult> compose(Function1<ExecutionContext, TaskResult> next) {
         return executionContext -> {
-            System.out.println("CONDITION");
             return condition.apply(executionContext) ? next.apply(executionContext) : new SkipAndContinue(parent.next());
         };
     }
