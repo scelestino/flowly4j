@@ -28,7 +28,7 @@ public class ExecutionTaskA extends ExecutionTask {
         executionContext.set(KEY1, "esta es una prueba");
         executionContext.set(KEY2, 123);
         executionContext.set(KEY4, Person.of("juan", 123, Instant.now()));
-        throw new RuntimeException("se rompe");
+        throw new CustomException("se rompe");
     }
 
     @Override
@@ -38,7 +38,7 @@ public class ExecutionTaskA extends ExecutionTask {
 
     @Override
     protected List<Function1<ExecutionTask, Trait>> customTraits() {
-        return List.of(Condition.of(c -> c.contains(KEY6)), Alternative.of(new FinishB()), Retry.of(Strategies.NOW, Strategies.TEN_TIMES));
+        return List.of(Condition.of(c -> c.contains(KEY6)), Alternative.of(new FinishC()), Retry.of(Strategies.NOW, Strategies.TEN_TIMES));
     }
 
 }

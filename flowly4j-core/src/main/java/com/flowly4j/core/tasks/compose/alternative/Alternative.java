@@ -36,6 +36,11 @@ public class Alternative implements Trait {
     }
 
     @Override
+    public List<Task> followedBy() {
+        return List.of(nextOnError);
+    }
+
+    @Override
     public Integer order() {
         return 0;
     }

@@ -26,14 +26,6 @@ public abstract class FinishTask extends Task {
     }
 
     /**
-     * A list of tasks that follows this task
-     */
-    @Override
-    public final List<Task> followedBy() {
-        return List.empty();
-    }
-
-    /**
      * Whatever this task is going to do
      */
     @Override

@@ -3,6 +3,7 @@ package com.flowly4j.core.tasks.compose.skippable;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.flowly4j.core.context.ExecutionContext;
 import com.flowly4j.core.input.Key;
+import com.flowly4j.core.tasks.Task;
 import com.flowly4j.core.tasks.compose.HasNext;
 import com.flowly4j.core.tasks.compose.Trait;
 import com.flowly4j.core.tasks.results.SkipAndContinue;
@@ -33,6 +34,11 @@ public class Skippable implements Trait {
     @Override
     public Integer order() {
         return 100;
+    }
+
+    @Override
+    public List<Task> followedBy() {
+        return List.empty();
     }
 
     public static <T extends HasNext> Function1<T, Trait> of() {

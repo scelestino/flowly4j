@@ -69,7 +69,9 @@ public abstract class Task {
     /**
      * A list of tasks that follows this task
      */
-    public abstract List<Task> followedBy();
+    public List<Task> followedBy() {
+        return getTraits().flatMap(Trait::followedBy);
+    }
 
     /**
      *  Keys configured by Traits

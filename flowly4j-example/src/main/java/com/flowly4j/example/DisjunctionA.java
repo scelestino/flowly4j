@@ -14,7 +14,7 @@ public class DisjunctionA extends DisjunctionTask {
 
     @Override
     protected List<Branch> branches() {
-        return Branch.of(c -> true, new BlockingA(), new FinishA());
+        return Branch.of(c -> true, new BlockingA(), new FinishB());
     }
 
     @Override

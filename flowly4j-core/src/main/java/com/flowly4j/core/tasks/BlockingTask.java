@@ -33,7 +33,7 @@ public abstract class BlockingTask extends Task implements HasNext {
      */
     @Override
     public final List<Task> followedBy() {
-        return List.of(next());
+        return super.followedBy().append(next());
     }
 
     /**

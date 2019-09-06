@@ -6,12 +6,13 @@ import io.vavr.Tuple;
 import io.vavr.Tuple0;
 import io.vavr.Tuple1;
 import io.vavr.Tuple2;
+import io.vavr.match.annotation.Patterns;
 import io.vavr.match.annotation.Unapply;
 
 /**
  * Interface of a {@link com.flowly4j.core.tasks.Task} execution result
  */
-@io.vavr.match.annotation.Patterns
+@Patterns
 public interface TaskResult {
 
     @Unapply

@@ -45,7 +45,7 @@ public abstract class DisjunctionTask extends Task {
      */
     @Override
     public final List<Task> followedBy() {
-        return getBranches().map(branch -> branch.task);
+        return super.followedBy().pushAll(getBranches().map(branch -> branch.task));
     }
 
     /**

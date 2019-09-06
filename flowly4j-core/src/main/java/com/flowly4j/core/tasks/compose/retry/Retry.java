@@ -16,6 +16,7 @@ import lombok.val;
 
 import java.time.Instant;
 
+import static com.flowly4j.core.tasks.compose.retry.stopping.Retryable.$Retryable;
 import static com.flowly4j.core.tasks.results.TaskResultPatterns.$OnError;
 import static io.vavr.API.*;
 
@@ -32,20 +33,26 @@ public class Retry implements Trait {
     @Override
     public Function1<ExecutionContext, TaskResult> compose(Function1<ExecutionContext, TaskResult> next) {
         return context -> {
-            val attempts = context.getAttempts().getOrElse(new Attempts(1, Instant.now(), Option.none()));
-            if(stoppingStrategy.shouldRetry(context, attempts)) {
-                return Match(next.apply(context)).of(
-                    Case($OnError($()), cause -> new ToRetry(cause, attempts.withNextRetry(schedulingStrategy.nextRetry(context, attempts)))),
+
+            val attempts = context.getAttempts().getOrElse( () -> new Attempts(1, Instant.now(), Option.none()) );
+
+            return Match(next.apply(context)).of(
+                    Case($OnError($Retryable($( r -> r.canBeRetried() && stoppingStrategy.shouldRetry(context, attempts) ))), cause -> {
+                        return new ToRetry(cause, attempts.withNextRetry(schedulingStrategy.nextRetry(context, attempts)));
+                    }),
                     Case($(), otherwise -> otherwise)
-                );
-            } else {
-                return next.apply(context);
-            }
+            );
+
         };
     }
 
     @Override
     public List<Key> allowedKeys() {
+        return List.empty();
+    }
+
+    @Override
+    public List<Task> followedBy() {
         return List.empty();
     }
 

@@ -10,10 +10,6 @@ import static com.flowly4j.example.CustomKeys.*;
 
 public class ExecutionTaskB extends ExecutionTask {
 
-    public ExecutionTaskB() {
-        super("ExecutionTaskA");
-    }
-
     @Override
     public Task next() {
         return new DisjunctionA();

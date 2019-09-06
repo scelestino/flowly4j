@@ -3,6 +3,7 @@ package com.flowly4j.core.tasks.compose.condition;
 import com.flowly4j.core.context.ExecutionContext;
 import com.flowly4j.core.context.ReadableExecutionContext;
 import com.flowly4j.core.input.Key;
+import com.flowly4j.core.tasks.Task;
 import com.flowly4j.core.tasks.compose.HasNext;
 import com.flowly4j.core.tasks.compose.Trait;
 import com.flowly4j.core.tasks.results.SkipAndContinue;
@@ -29,6 +30,11 @@ public class Condition implements Trait {
 
     @Override
     public List<Key> allowedKeys() {
+        return List.empty();
+    }
+
+    @Override
+    public List<Task> followedBy() {
         return List.empty();
     }
 
