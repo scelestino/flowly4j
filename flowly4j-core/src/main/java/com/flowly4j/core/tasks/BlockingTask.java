@@ -41,7 +41,7 @@ public abstract class BlockingTask extends Task implements HasNext {
      */
     protected final TaskResult exec(ExecutionContext executionContext) {
         try {
-            return condition(executionContext) ? new Continue(next()) : new Block();
+            return condition(executionContext) ? new Continue(next(), executionContext) : new Block();
         } catch (Throwable throwable) {
             return new OnError(throwable);
         }

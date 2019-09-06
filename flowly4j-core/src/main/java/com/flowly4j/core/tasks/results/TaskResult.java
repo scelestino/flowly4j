@@ -1,5 +1,7 @@
 package com.flowly4j.core.tasks.results;
 
+import com.flowly4j.core.context.ExecutionContext;
+import com.flowly4j.core.context.WritableExecutionContext;
 import com.flowly4j.core.session.Attempts;
 import com.flowly4j.core.tasks.Task;
 import io.vavr.Tuple;
@@ -16,13 +18,13 @@ import io.vavr.match.annotation.Unapply;
 public interface TaskResult {
 
     @Unapply
-    static Tuple1<Task> Continue(Continue result) {
-        return Tuple.of(result.nextTask);
+    static Tuple2<Task, ExecutionContext> Continue(Continue result) {
+        return Tuple.of(result.nextTask, result.executionContext);
     }
 
     @Unapply
-    static Tuple1<Task> SkipAndContinue(SkipAndContinue result) {
-        return Tuple.of(result.nextTask);
+    static Tuple2<Task, ExecutionContext> SkipAndContinue(SkipAndContinue result) {
+        return Tuple.of(result.nextTask, result.executionContext);
     }
 
     @Unapply

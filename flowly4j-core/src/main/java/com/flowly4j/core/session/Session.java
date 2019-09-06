@@ -1,5 +1,7 @@
 package com.flowly4j.core.session;
 
+import com.flowly4j.core.context.ReadableExecutionContext;
+import com.flowly4j.core.context.WritableExecutionContext;
 import com.flowly4j.core.input.Param;
 import com.flowly4j.core.context.ExecutionContext;
 import com.flowly4j.core.tasks.Task;

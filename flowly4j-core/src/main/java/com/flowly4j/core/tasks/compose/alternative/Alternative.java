@@ -26,7 +26,7 @@ public class Alternative implements Trait {
     @Override
     public Function1<ExecutionContext, TaskResult> compose(Function1<ExecutionContext, TaskResult> next) {
         return executionContext -> Match(next.apply(executionContext)).of(
-                Case($OnError($()), cause -> new Continue(nextOnError)),
+                Case($OnError($()), cause -> new Continue(nextOnError, executionContext)),
                 Case($(), otherwise -> otherwise)
         );
     }

@@ -54,8 +54,9 @@ public abstract class DisjunctionTask extends Task {
     protected final TaskResult exec(ExecutionContext executionContext) {
         try {
             return Match(next(executionContext)).of(
-                    Case($Some($()), Continue::new),
-                    Case($(), isBlockOnNoCondition() ? new Block() : new OnError(new DisjunctionTaskError(getId(), "There is no a valid branch for the given conditions on the task " + getId())))
+                    Case($Some($()), task -> new Continue(task, executionContext)),
+                    Case($( t -> isBlockOnNoCondition() ), new Block()),
+                    Case($(), new OnError(new DisjunctionTaskError(getId(), "There is no a valid branch for the given conditions on the task " + getId())))
             );
         } catch (Throwable throwable) {
             return new OnError(throwable);

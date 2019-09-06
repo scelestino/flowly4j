@@ -81,6 +81,10 @@ public class ExecutionContext implements ReadableExecutionContext, WritableExecu
         return attempts;
     }
 
+    public ExecutionContext copy() {
+        return new ExecutionContext(sessionId, variables, attempts, serializer);
+    }
+
     public static class ExecutionContextFactory {
 
         private Serializer serializer;

@@ -26,7 +26,7 @@ public class Condition implements Trait {
 
     @Override
     public Function1<ExecutionContext, TaskResult> compose(Function1<ExecutionContext, TaskResult> next) {
-        return executionContext -> condition.apply(executionContext) ? next.apply(executionContext) : new SkipAndContinue(parent.next());
+        return executionContext -> condition.apply(executionContext) ? next.apply(executionContext) : new SkipAndContinue(parent.next(), executionContext);
     }
 
     @Override

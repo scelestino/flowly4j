@@ -10,6 +10,7 @@ import com.flowly4j.core.tasks.results.OnError;
 import com.flowly4j.core.tasks.results.TaskResult;
 import io.vavr.Function1;
 import io.vavr.collection.List;
+import lombok.val;
 
 /**
  * An instance of this {@link Task} will execute your code and can change the execution context.
@@ -38,8 +39,9 @@ public abstract class ExecutionTask extends Task implements HasNext {
      */
     protected final TaskResult exec(ExecutionContext executionContext) {
         try {
-            perform(executionContext);
-            return new Continue(next());
+            val performContext = executionContext.copy();
+            perform(performContext);
+            return new Continue(next(), performContext);
         } catch (Throwable throwable) {
             return new OnError(throwable);
         }

@@ -119,27 +119,27 @@ public class Workflow {
         // Execute the current task
         return Match(task.execute(executionContext)).of(
 
-                Case($Continue($()), nextTask -> {
+                Case($Continue($(), $()), (nextTask, resultingExecutionContext) -> {
 
                     // Set the session as running (with new context and next task)
-                    val runningSession = repository.update(session.continuee(nextTask, executionContext));
+                    val runningSession = repository.update(session.continuee(nextTask, resultingExecutionContext));
 
                     // On Continue Event
-                    eventListeners.forEach( l -> l.onContinue(executionContext, task.getId(), nextTask.getId()) );
+                    eventListeners.forEach( l -> l.onContinue(resultingExecutionContext, task.getId(), nextTask.getId()) );
 
                     return execute(nextTask, runningSession);
 
                 }),
 
-                Case($SkipAndContinue($()), nextTask -> {
+                Case($SkipAndContinue($(), $()), (nextTask, resultingExecutionContext) -> {
 
                     // Set the session as running (with new context and next task)
-                    val runningSession = repository.update(session.continuee(nextTask, executionContext));
+                    val runningSession = repository.update(session.continuee(nextTask, resultingExecutionContext));
 
                     // On SkipAndContinue & Continue Event
                     eventListeners.forEach( l -> {
-                        l.onSkip(executionContext, task.getId());
-                        l.onContinue(executionContext, task.getId(), nextTask.getId());
+                        l.onSkip(resultingExecutionContext, task.getId());
+                        l.onContinue(resultingExecutionContext, task.getId(), nextTask.getId());
                     });
 
                     return execute(nextTask, runningSession);
