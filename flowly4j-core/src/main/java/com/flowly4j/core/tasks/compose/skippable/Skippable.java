@@ -11,6 +11,9 @@ import com.flowly4j.core.tasks.results.TaskResult;
 import io.vavr.Function1;
 import io.vavr.collection.List;
 
+/**
+ * Aspect used to allow a manual skip
+ */
 public class Skippable implements Trait {
 
     private HasNext parent;
@@ -21,9 +24,7 @@ public class Skippable implements Trait {
 
     @Override
     public Function1<ExecutionContext, TaskResult> compose(Function1<ExecutionContext, TaskResult> next) {
-        return executionContext -> {
-            return executionContext.get(SKIP).contains(true) ? new SkipAndContinue(parent.next()) : next.apply(executionContext.unset(SKIP));
-        };
+        return executionContext -> executionContext.get(SKIP).contains(true) ? new SkipAndContinue(parent.next()) : next.apply(executionContext.unset(SKIP));
     }
 
     @Override

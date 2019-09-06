@@ -11,6 +11,9 @@ import com.flowly4j.core.tasks.results.TaskResult;
 import io.vavr.Function1;
 import io.vavr.collection.List;
 
+/**
+ * Aspect used to give a condition to a Task (automatic skip)
+ */
 public class Condition implements Trait {
 
     private HasNext parent;
@@ -23,9 +26,7 @@ public class Condition implements Trait {
 
     @Override
     public Function1<ExecutionContext, TaskResult> compose(Function1<ExecutionContext, TaskResult> next) {
-        return executionContext -> {
-            return condition.apply(executionContext) ? next.apply(executionContext) : new SkipAndContinue(parent.next());
-        };
+        return executionContext -> condition.apply(executionContext) ? next.apply(executionContext) : new SkipAndContinue(parent.next());
     }
 
     @Override

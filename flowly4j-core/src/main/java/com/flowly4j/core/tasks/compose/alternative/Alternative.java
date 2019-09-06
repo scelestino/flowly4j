@@ -12,6 +12,9 @@ import io.vavr.collection.List;
 import static com.flowly4j.core.tasks.results.TaskResultPatterns.$OnError;
 import static io.vavr.API.*;
 
+/**
+ * Aspect used to give an alternative path if a Task finish with error
+ */
 public class Alternative implements Trait {
 
     private Task nextOnError;
@@ -22,12 +25,10 @@ public class Alternative implements Trait {
 
     @Override
     public Function1<ExecutionContext, TaskResult> compose(Function1<ExecutionContext, TaskResult> next) {
-        return executionContext -> {
-            return Match(next.apply(executionContext)).of(
-                    Case($OnError($()), cause -> new Continue(nextOnError)),
-                    Case($(), otherwise -> otherwise)
-            );
-        };
+        return executionContext -> Match(next.apply(executionContext)).of(
+                Case($OnError($()), cause -> new Continue(nextOnError)),
+                Case($(), otherwise -> otherwise)
+        );
     }
 
     @Override

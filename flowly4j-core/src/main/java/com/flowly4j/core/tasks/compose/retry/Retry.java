@@ -20,6 +20,9 @@ import static com.flowly4j.core.tasks.compose.retry.stopping.Retryable.$Retryabl
 import static com.flowly4j.core.tasks.results.TaskResultPatterns.$OnError;
 import static io.vavr.API.*;
 
+/**
+ * Aspect used to give retries to a Task
+ */
 public class Retry implements Trait {
 
     private SchedulingStrategy schedulingStrategy;
@@ -37,9 +40,7 @@ public class Retry implements Trait {
             val attempts = context.getAttempts().getOrElse( () -> new Attempts(1, Instant.now(), Option.none()) );
 
             return Match(next.apply(context)).of(
-                    Case($OnError($Retryable($( r -> r.canBeRetried() && stoppingStrategy.shouldRetry(context, attempts) ))), cause -> {
-                        return new ToRetry(cause, attempts.withNextRetry(schedulingStrategy.nextRetry(context, attempts)));
-                    }),
+                    Case($OnError($Retryable($( r -> r.canBeRetried() && stoppingStrategy.shouldRetry(context, attempts) ))), cause -> new ToRetry(cause, attempts.withNextRetry(schedulingStrategy.nextRetry(context, attempts)))),
                     Case($(), otherwise -> otherwise)
             );
 
