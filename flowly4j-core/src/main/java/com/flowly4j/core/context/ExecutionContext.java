@@ -44,7 +44,7 @@ public class ExecutionContext implements ReadableExecutionContext, WritableExecu
     }
 
     public <T> T getOrElseThrow(Key<T> key) {
-        return get(key).getOrElseThrow(() -> new KeyNotFoundException(key.getIdentifier(), "Key not found in Execution Context"));
+        return get(key).getOrElseThrow(() -> new KeyNotFoundException(key.getIdentifier()));
     }
 
     public <T, X extends Throwable> T getOrElseThrow(Key<T> key, Supplier<X> throwable) throws X {

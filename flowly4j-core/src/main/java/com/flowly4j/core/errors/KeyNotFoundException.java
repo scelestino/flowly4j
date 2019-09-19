@@ -7,8 +7,8 @@ public class KeyNotFoundException extends RuntimeException {
 
     private String key;
 
-    public KeyNotFoundException(String key, String message) {
-        super(message);
+    public KeyNotFoundException(String key) {
+        super(String.format("Key %s not found in Execution Context", key));
         this.key = key;
     }
 
