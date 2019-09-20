@@ -1,5 +1,7 @@
 package com.flowly4j.core.tasks.results;
 
+import com.flowly4j.core.context.ExecutionContext;
+import com.flowly4j.core.context.WritableExecutionContext;
 import com.flowly4j.core.tasks.Task;
 import lombok.ToString;
 
@@ -11,9 +13,11 @@ import lombok.ToString;
 public class Continue implements TaskResult {
 
     public final Task nextTask;
+    public final ExecutionContext executionContext;
 
-    public Continue(Task nextTask) {
+    public Continue(Task nextTask, ExecutionContext executionContext) {
         this.nextTask = nextTask;
+        this.executionContext = executionContext;
     }
 
 }

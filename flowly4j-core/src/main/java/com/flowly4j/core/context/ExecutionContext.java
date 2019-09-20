@@ -1,17 +1,13 @@
 package com.flowly4j.core.context;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.flowly4j.core.errors.KeyNotFoundException;
-import com.flowly4j.core.input.Param;
 import com.flowly4j.core.input.Key;
 import com.flowly4j.core.serialization.Serializer;
+import com.flowly4j.core.session.Attempts;
 import com.flowly4j.core.session.Session;
-import io.vavr.Tuple;
-import io.vavr.collection.List;
 import io.vavr.collection.Map;
 import io.vavr.control.Option;
 import lombok.ToString;
-import lombok.val;
 
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -24,12 +20,19 @@ public class ExecutionContext implements ReadableExecutionContext, WritableExecu
 
     private String sessionId;
     private Map<String, Object> variables;
+    private Option<Attempts> attempts;
     private Serializer serializer;
 
-    private ExecutionContext(String sessionId, Map<String, Object> variables, Serializer serializer) {
+    private ExecutionContext(String sessionId, Map<String, Object> variables, Option<Attempts> attempts, Serializer serializer) {
         this.sessionId = sessionId;
         this.variables = variables;
+        this.attempts = attempts;
         this.serializer = serializer;
+    }
+
+    @Override
+    public String getSessionId() {
+        return sessionId;
     }
 
     public <T> Option<T> get(Key<T> key) {
@@ -41,19 +44,21 @@ public class ExecutionContext implements ReadableExecutionContext, WritableExecu
     }
 
     public <T> T getOrElseThrow(Key<T> key) {
-        return get(key).getOrElseThrow(() -> new KeyNotFoundException(key.getIdentifier(), "Key not found in Execution Context"));
+        return get(key).getOrElseThrow(() -> new KeyNotFoundException(key.getIdentifier()));
     }
 
     public <T, X extends Throwable> T getOrElseThrow(Key<T> key, Supplier<X> throwable) throws X {
         return get(key).getOrElseThrow(throwable);
     }
 
-    public <T> void set(Key<T> key, T value) {
+    public <T> ExecutionContext set(Key<T> key, T value) {
         variables = variables.put(key.getIdentifier(), serializer.deepCopy(value, key.getTypeReference()));
+        return this;
     }
 
-    public void unset(Key<?> key) {
+    public ExecutionContext unset(Key<?> key) {
         variables = variables.remove(key.getIdentifier());
+        return this;
     }
 
     public Boolean contains(Key<?> key) {
@@ -68,13 +73,16 @@ public class ExecutionContext implements ReadableExecutionContext, WritableExecu
         return get(key).forAll(condition);
     }
 
-    @Override
-    public String getSessionId() {
-        return sessionId;
+    public Map<String, Object> getVariables() {
+        return variables;
     }
 
-    public Map<String, Object> getVariables() {
-        return serializer.deepCopy(variables, new TypeReference<Map<String, Object>>() {});
+    public Option<Attempts> getAttempts() {
+        return attempts;
+    }
+
+    public ExecutionContext copy() {
+        return new ExecutionContext(sessionId, variables, attempts, serializer);
     }
 
     public static class ExecutionContextFactory {
@@ -85,9 +93,8 @@ public class ExecutionContext implements ReadableExecutionContext, WritableExecu
             this.serializer = serializer;
         }
 
-        public ExecutionContext create(Session session, List<Param> params) {
-            val variables = params.toMap(p -> Tuple.of(p.getKey().getIdentifier(), p.getValue())).merge(session.getVariables());
-            return new ExecutionContext(session.getSessionId(), variables, serializer);
+        public ExecutionContext create(Session session) {
+            return new ExecutionContext(session.getSessionId(), session.getVariables(), session.getAttempts(), serializer);
         }
 
     }

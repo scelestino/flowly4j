@@ -1,20 +1,14 @@
 package com.flowly4j.example;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flowly4j.core.Workflow;
-import com.flowly4j.core.context.ExecutionContext;
-import com.flowly4j.core.serialization.Serializer;
-import com.flowly4j.mongodb.MongoDBRepository;
-import com.mongodb.MongoClient;
+import com.flowly4j.core.context.ExecutionContext.ExecutionContextFactory;
+import com.flowly4j.core.repository.Repository;
 import io.vavr.collection.List;
 
 public class WorkflowA extends Workflow {
 
-    public WorkflowA() {
-        this.initialTask = new ExecutionTaskA();
-        this.repository = new MongoDBRepository(new MongoClient("localhost"), "flowly", "workflowA", new ObjectMapper());
-        this.executionContextFactory = new ExecutionContext.ExecutionContextFactory(new Serializer(new ObjectMapper()));
-        this.eventListeners = List.of(new ConsoleEventListener());
+    public WorkflowA(Repository repository, ExecutionContextFactory executionContextFactory) {
+        super(new ExecutionTaskA(), repository, executionContextFactory, List.of(new ConsoleEventListener()));
     }
 
 }

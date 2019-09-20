@@ -3,6 +3,7 @@ package com.flowly4j.core.tasks;
 
 import com.flowly4j.core.context.ExecutionContext;
 import com.flowly4j.core.input.Key;
+import com.flowly4j.core.tasks.compose.Trait;
 import com.flowly4j.core.tasks.results.Finish;
 import com.flowly4j.core.tasks.results.TaskResult;
 import io.vavr.collection.List;
@@ -17,23 +18,40 @@ import io.vavr.collection.List;
  */
 public abstract class FinishTask extends Task {
 
+    public FinishTask() {
+    }
+
     public FinishTask(String id) {
         super(id);
     }
 
+    /**
+     * Whatever this task is going to do
+     */
     @Override
-    public TaskResult execute(ExecutionContext executionContext) {
+    protected final TaskResult exec(ExecutionContext executionContext) {
         return new Finish();
     }
 
+    /**
+     *  Keys configured by Traits
+     */
     @Override
-    public List<Task> followedBy() {
+    protected final List<Key> internalAllowedKeys() { return List.empty(); }
+
+
+    /**
+     * Traits implemented by this task
+     */
+    @Override
+    protected final List<Trait> traits() {
         return List.empty();
     }
 
+    /**
+     *  Keys configured by this Task
+     */
     @Override
-    protected List<Key> allowedKeys() {
-        return List.empty();
-    }
+    protected final List<Key> customAllowedKeys() { return List.empty(); }
 
 }

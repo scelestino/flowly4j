@@ -36,6 +36,16 @@ public enum Status {
     },
 
     /**
+     * Last execution needs to be retried
+     */
+    TO_RETRY {
+        @Override
+        public Boolean isExecutable() {
+            return true;
+        }
+    },
+
+    /**
      * Last execution ended the workflow
      */
     FINISHED {

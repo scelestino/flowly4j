@@ -1,19 +1,25 @@
 package com.flowly4j.example;
 
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.flowly4j.core.output.ExecutionResult;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
+import com.flowly4j.core.context.ExecutionContext;
 import com.flowly4j.core.input.Param;
 import com.flowly4j.core.Workflow;
+import com.flowly4j.core.serialization.Serializer;
+import com.flowly4j.mongodb.CustomDateModule;
+import com.flowly4j.mongodb.MongoDBRepository;
+import com.mongodb.MongoClient;
+import io.vavr.jackson.datatype.VavrModule;
 import lombok.val;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
+import java.time.Instant;
 
-import static com.flowly4j.example.CustomKeys.KEY1;
-import static com.flowly4j.example.CustomKeys.KEY2;
-import static com.flowly4j.example.CustomKeys.KEY3;
+import static com.flowly4j.example.CustomKeys.*;
 
 
 /**
@@ -22,46 +28,37 @@ import static com.flowly4j.example.CustomKeys.KEY3;
  */
 public class App {
 
-    public static void main( String[] args ) throws InterruptedException {
+    public static void main( String[] args ) {
 
+        val objectMapperContext = new ObjectMapper();
+        objectMapperContext.registerModule(new JavaTimeModule());
+        objectMapperContext.registerModule(new ParameterNamesModule(JsonCreator.Mode.PROPERTIES));
+        objectMapperContext.registerModule(new VavrModule(new VavrModule.Settings().deserializeNullAsEmptyCollection(true)));
+        objectMapperContext.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        objectMapperContext.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
 
-//        ExecutorService tpe = Executors.newFixedThreadPool(5);
+        val objectMapperRepository = new ObjectMapper();
+        objectMapperRepository.registerModule(new CustomDateModule());
+        objectMapperRepository.registerModule(new ParameterNamesModule(JsonCreator.Mode.PROPERTIES));
+        objectMapperRepository.registerModule(new VavrModule(new VavrModule.Settings().deserializeNullAsEmptyCollection(true)));
+        objectMapperRepository.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        objectMapperRepository.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
 
-        Workflow workflow = new WorkflowA();
+        val repository = new MongoDBRepository(new MongoClient("localhost"), "flowly", "workflowA", objectMapperRepository);
 
-        String sessionId = workflow.init(Param.of(KEY1, "asd"), Param.of(KEY2, 123));
+        val factory = new ExecutionContext.ExecutionContextFactory(new Serializer(objectMapperContext));
 
-        ExecutionResult result = workflow.execute(sessionId, Param.of(KEY3, true));
+        System.out.println(repository.getToRetry().toList());
+
+        Workflow workflow = new WorkflowA(repository, factory);
+
+        String sessionId = workflow.init(Param.of(KEY1, "asd"), Param.of(KEY2, 123), Param.of(KEY6, Instant.EPOCH));
+
+        val result = workflow.execute(sessionId);
+
         System.out.println(result);
 
-//        tpe.execute(() -> {
-//            try {
-//                Thread.sleep(2000);
-//            } catch (InterruptedException e) {
-//                e.printStackTrace();
-//            }
-//            ExecutionResult result = workflow.execute(sessionId, Param.of(KEY3, true));
-//            System.out.println(result);
-//        });
 
-//        tpe.execute(() -> {
-//            try {
-//                Thread.sleep(2000);
-//            } catch (InterruptedException e) {
-//                e.printStackTrace();
-//            }
-//            ExecutionResult result = workflow.execute(sessionId);
-//            System.out.println(result);
-//        });
-//
-//
-//        tpe.awaitTermination(1000, TimeUnit.MILLISECONDS);
-//
-//        tpe.shutdown();
-
-        //ExecutionResult result = workflow.execute(sessionId);
-
-        //System.out.println( result );
 
     }
 

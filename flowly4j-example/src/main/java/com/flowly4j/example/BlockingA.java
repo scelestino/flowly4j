@@ -4,16 +4,16 @@ import com.flowly4j.core.context.ReadableExecutionContext;
 import com.flowly4j.core.input.Key;
 import com.flowly4j.core.tasks.BlockingTask;
 import com.flowly4j.core.tasks.Task;
+import com.flowly4j.core.tasks.compose.Trait;
+import com.flowly4j.core.tasks.compose.condition.Condition;
+import com.flowly4j.core.tasks.compose.retry.Retry;
+import io.vavr.Function1;
 import io.vavr.collection.List;
 
 import static com.flowly4j.example.CustomKeys.KEY1;
 import static com.flowly4j.example.CustomKeys.KEY4;
 
 public class BlockingA extends BlockingTask {
-
-    public BlockingA() {
-        super("BlockingA");
-    }
 
     @Override
     public Boolean condition(ReadableExecutionContext executionContext) {
@@ -26,9 +26,15 @@ public class BlockingA extends BlockingTask {
         return new FinishA();
     }
 
+
     @Override
-    protected List<Key> allowedKeys() {
+    protected List<Key> customAllowedKeys() {
         return List.empty();
+    }
+
+    @Override
+    protected List<Function1<BlockingTask, Trait>> customTraits() {
+        return List.of(Retry.of(Strategies.TWO_MINUTES, Strategies.TEN_TIMES), Condition.of(c -> c.contains(KEY1)));
     }
 
 }

@@ -1,6 +1,7 @@
 package com.flowly4j.core.repository;
 
 import com.flowly4j.core.session.Session;
+import io.vavr.collection.Iterator;
 import io.vavr.control.Option;
 
 /**
@@ -22,5 +23,10 @@ public interface Repository {
      * Update an existent session
      */
     Session update(Session session);
+
+    /**
+     * Get sessions to Retry
+     */
+    Iterator<String> getToRetry();
 
 }

@@ -2,6 +2,7 @@ package com.flowly4j.core.events;
 
 import com.flowly4j.core.context.ReadableExecutionContext;
 import com.flowly4j.core.input.Param;
+import com.flowly4j.core.session.Attempts;
 import io.vavr.collection.List;
 
 public abstract class BaseEventListener implements EventListener {
@@ -12,6 +13,10 @@ public abstract class BaseEventListener implements EventListener {
 
     @Override
     public void onStart(ReadableExecutionContext executionContext) {
+    }
+
+    @Override
+    public void onResume(ReadableExecutionContext executionContext) {
     }
 
     @Override
@@ -32,6 +37,10 @@ public abstract class BaseEventListener implements EventListener {
 
     @Override
     public void onError(ReadableExecutionContext executionContext, String currentTask, Throwable cause) {
+    }
+
+    @Override
+    public void onToRetry(ReadableExecutionContext executionContext, String currentTask, Throwable cause, Attempts attempts) {
     }
 
 }
