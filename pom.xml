@@ -5,7 +5,7 @@
 
     <groupId>com.flowly4j</groupId>
     <artifactId>flowly4j</artifactId>
-    <version>0.16</version>
+    <version>0.17-SNAPSHOT</version>
 
     <packaging>pom</packaging>
 
@@ -16,7 +16,7 @@
         <connection>scm:git:git@github.com:despegar/flowly4j.git</connection>
         <developerConnection>scm:git:git@github.com:despegar/flowly4j.git</developerConnection>
         <url>https://github.com/despegar/flowly4j.git</url>
-        <tag>flowly4j-0.16</tag>
+        <tag>HEAD</tag>
     </scm>
 
     <properties>
