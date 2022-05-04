@@ -13,10 +13,13 @@ import com.flowly4j.core.Workflow;
 import com.flowly4j.core.serialization.Serializer;
 import com.flowly4j.mongodb.CustomDateModule;
 import com.flowly4j.mongodb.MongoDBRepository;
-import com.mongodb.MongoClient;
+import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoClients;
+
 import io.vavr.jackson.datatype.VavrModule;
 import lombok.val;
 
+import java.text.MessageFormat;
 import java.time.Instant;
 
 import static com.flowly4j.example.CustomKeys.*;
@@ -44,7 +47,13 @@ public class App {
         objectMapperRepository.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         objectMapperRepository.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
 
-        val repository = new MongoDBRepository(new MongoClient("localhost"), "flowly", "workflowA", objectMapperRepository);
+        MongoClient client = MongoClients.create(MessageFormat.format("mongodb://{0}:{1}@{2}/{3}",
+                "yourMongoUser",
+                "yourMongoPassword",
+                "yourMongoHosts",
+                "yourMongoAuthDb"));
+        
+        val repository = new MongoDBRepository(client, "flowly", "workflowA", objectMapperRepository);
 
         val factory = new ExecutionContext.ExecutionContextFactory(new Serializer(objectMapperContext));
 
