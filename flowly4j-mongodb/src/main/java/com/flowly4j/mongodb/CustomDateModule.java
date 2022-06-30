@@ -14,6 +14,7 @@ import java.time.Instant;
 import java.util.Date;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 
 public class CustomDateModule extends SimpleModule {
 
@@ -22,6 +23,7 @@ public class CustomDateModule extends SimpleModule {
         addSerializer(Instant.class, new InstantJsonSerializer());
         addSerializer(Date.class, new DateJsonSerializer());
         addSerializer(LocalDateTime.class, new LocalDateTimeSerializer());
+        addDeserializer(LocalDateTime.class, new LocalDateTimeJsonDeserializer());
         addDeserializer(Instant.class, new InstantJsonDeserializer());
     }
 
@@ -35,10 +37,7 @@ public class CustomDateModule extends SimpleModule {
     class LocalDateTimeSerializer extends JsonSerializer<LocalDateTime> {
         @Override
         public void serialize(LocalDateTime value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
-            gen.writeObject(
-            		java.util.Date
-            	      .from(value.atOffset(ZoneOffset.ofHours(0)).toInstant())            		
-            		);
+            gen.writeObject(value.toString());
         }
     }
 
@@ -58,6 +57,14 @@ public class CustomDateModule extends SimpleModule {
                 gen.writeString(value.toString());
             }
         }
+    }
+    
+    class LocalDateTimeJsonDeserializer extends JsonDeserializer<LocalDateTime> {
+    	 @Override
+         public LocalDateTime deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
+    		 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-ddTHH:mm:ss");
+    		 return LocalDateTime.parse((String)p.getEmbeddedObject(), formatter);
+         }
     }
 
 }
