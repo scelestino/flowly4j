@@ -12,6 +12,8 @@ import org.mongojack.internal.object.document.DocumentObjectGenerator;
 import java.io.IOException;
 import java.time.Instant;
 import java.util.Date;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 
 public class CustomDateModule extends SimpleModule {
 
@@ -19,6 +21,7 @@ public class CustomDateModule extends SimpleModule {
         super("CustomDateModule");
         addSerializer(Instant.class, new InstantJsonSerializer());
         addSerializer(Date.class, new DateJsonSerializer());
+        addSerializer(LocalDateTime.class, new LocalDateTimeSerializer());
         addDeserializer(Instant.class, new InstantJsonDeserializer());
     }
 
@@ -26,6 +29,16 @@ public class CustomDateModule extends SimpleModule {
         @Override
         public void serialize(Instant value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
             gen.writeObject(Date.from(value));
+        }
+    }
+    
+    class LocalDateTimeSerializer extends JsonSerializer<LocalDateTime> {
+        @Override
+        public void serialize(LocalDateTime value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
+            gen.writeObject(
+            		java.util.Date
+            	      .from(value.atOffset(ZoneOffset.ofHours(0)).toInstant())            		
+            		);
         }
     }
 
