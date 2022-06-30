@@ -37,7 +37,7 @@ public class CustomDateModule extends SimpleModule {
     class LocalDateTimeSerializer extends JsonSerializer<LocalDateTime> {
         @Override
         public void serialize(LocalDateTime value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
-            gen.writeObject(value.toString());
+        	gen.writeObject(DateTimeFormatter.ISO_LOCAL_DATE_TIME.format (value));
         }
     }
 
@@ -62,7 +62,7 @@ public class CustomDateModule extends SimpleModule {
     class LocalDateTimeJsonDeserializer extends JsonDeserializer<LocalDateTime> {
     	 @Override
          public LocalDateTime deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
-    		 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
+    		 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm");
     		 return LocalDateTime.parse((String)p.getEmbeddedObject(), formatter);
          }
     }
