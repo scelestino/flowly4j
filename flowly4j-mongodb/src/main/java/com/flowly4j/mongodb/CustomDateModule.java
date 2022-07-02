@@ -63,7 +63,7 @@ public class CustomDateModule extends SimpleModule {
     	 @Override
          public LocalDateTime deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
     		 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
-    		 return LocalDateTime.parse((String)p.getEmbeddedObject(), formatter);
+    		 return LocalDateTime.parse((String)p.getValueAsString(), formatter);
          }
     }
 
