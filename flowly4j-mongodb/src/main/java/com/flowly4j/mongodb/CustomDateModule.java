@@ -73,7 +73,7 @@ public class CustomDateModule extends SimpleModule {
     class LocalDateSerializer extends JsonSerializer<LocalDate> {
         @Override
         public void serialize(LocalDate value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
-        	gen.writeObject(DateTimeFormatter.ISO_LOCAL_DATE_TIME.format (value));
+        	gen.writeString(value.toString());
         }
     }
     
