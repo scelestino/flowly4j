@@ -5,7 +5,7 @@
 
     <groupId>com.flowly4j</groupId>
     <artifactId>flowly4j</artifactId>
-    <version>0.16-SNAPSHOT</version>
+    <version>0.25-SNAPSHOT</version>
 
     <packaging>pom</packaging>
 
@@ -157,11 +157,11 @@
     <distributionManagement>
         <snapshotRepository>
             <id>InternalSnapshot</id>
-            <url>http://vmtilcara.servers.despegar.it:8080/nexus/content/repositories/snapshots</url>
+            <url>https://backoffice-secure.despegar.com/nexus/repository/maven-snapshots</url>
         </snapshotRepository>
         <repository>
             <id>InternalRelease</id>
-            <url>http://vmtilcara.servers.despegar.it:8080/nexus/content/repositories/releases</url>
+            <url>https://backoffice-secure.despegar.com/nexus/repository/maven-releases</url>
         </repository>
 
     </distributionManagement>

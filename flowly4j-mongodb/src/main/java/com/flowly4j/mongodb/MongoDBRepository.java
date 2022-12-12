@@ -1,21 +1,37 @@
 package com.flowly4j.mongodb;
 
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flowly4j.core.repository.Repository;
 import com.flowly4j.core.session.Session;
 import com.flowly4j.core.session.Status;
-import com.mongodb.MongoClient;
+import com.mongodb.MongoException;
+import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.model.FindOneAndUpdateOptions;
 import com.mongodb.client.model.IndexOptions;
+import com.mongodb.client.model.ReturnDocument;
+
 import io.vavr.collection.Iterator;
 import io.vavr.control.Option;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import lombok.val;
 import org.bson.Document;
+import org.bson.UuidRepresentation;
+import org.mongojack.DBUpdate;
 import org.mongojack.JacksonMongoCollection;
+import org.mongojack.JacksonMongoCollection.JacksonMongoCollectionBuilder;
+import org.mongojack.MongoJsonMappingException;
+import org.mongojack.internal.object.document.DocumentObjectGenerator;
+import org.mongojack.internal.stream.JacksonDBObject;
+import org.mongojack.internal.util.DocumentSerializationUtils;
 
 import javax.persistence.OptimisticLockException;
 import javax.persistence.PersistenceException;
+
+import java.io.IOException;
 import java.sql.Date;
 import java.time.Instant;
 import java.util.HashMap;
@@ -31,21 +47,22 @@ public class MongoDBRepository implements Repository {
 
     JacksonMongoCollection<Session> collection;
     ObjectMapper objectMapper;
+    MongoCollection<Document> mongoCollection;
 
     public MongoDBRepository(MongoClient client, String databaseName, String collectionName, ObjectMapper objectMapper) {
-
+    	
         // Configure Object Mapper in order to work with Session
         this.objectMapper = objectMapper;
         this.objectMapper.addMixIn(Session.class, SessionMixIn.class);
-
-        val mongoCollection = client.getDatabase(databaseName).getCollection(collectionName);
-
-        JacksonMongoCollection.JacksonMongoCollectionBuilder<Session> builder = JacksonMongoCollection.builder();
-        this.collection = builder.withObjectMapper(this.objectMapper).build(mongoCollection, Session.class);
-
+        
+        this.mongoCollection = client.getDatabase(databaseName).getCollection(collectionName);
+        
+        this.collection = JacksonMongoCollection.builder()
+			    .withObjectMapper(objectMapper)
+			    .build(client, databaseName, collectionName, Session.class, UuidRepresentation.STANDARD);
         // Initialize sessionId index
         this.collection.createIndex(new Document("sessionId", 1), new IndexOptions().unique(true));
-
+    	
     }
 
     /**
@@ -82,11 +99,20 @@ public class MongoDBRepository implements Repository {
      */
     @Override
     public Session update(Session session) {
-
-        try {
-
-            // Update will replace every document field and it is going to increment in one unit its version
-            val document = JacksonMongoCollection.convertToDocument(session, objectMapper, Session.class);
+               	
+    	try {
+        	            
+            DocumentObjectGenerator generator = new DocumentObjectGenerator();
+            try {
+                   objectMapper.writerWithView(Session.class).writeValue(generator, session);
+               } catch (JsonMappingException e) {
+                   throw new MongoJsonMappingException(e);
+               } catch (IOException e) {
+                   // This shouldn't happen
+                   throw new MongoException("Unknown error occurred converting BSON to object", e);
+               }
+            Document document =  generator.getDocument();
+            
             document.remove("version");
 
             val update = new Document("$set", document);
@@ -99,22 +125,24 @@ public class MongoDBRepository implements Repository {
                     put("version", session.getVersion());
                 }
             };
-
-            val result = collection.findAndModify(new Document(query), new Document(), new Document(), collection.serializeFields(update), true, false);
-
+            FindOneAndUpdateOptions options = new FindOneAndUpdateOptions();
+            options.returnDocument(ReturnDocument.AFTER);
+            
+            val result = collection.findOneAndUpdate(new Document(query), update,options);
+            
             // if the session doesn't exist or the version is different there is no result
             if (result == null) {
                 throw new OptimisticLockException("Session " + session.getSessionId() + " was modified by another transaction");
             }
 
             return result;
-
+            
         } catch (OptimisticLockException ex) {
             throw  ex;
         } catch (Throwable throwable) {
             throw new PersistenceException("Error saving session " + session.getSessionId(), throwable);
         }
-
+        	
     }
 
     @Override
@@ -135,5 +163,19 @@ public class MongoDBRepository implements Repository {
             throw new PersistenceException("Error getting sessions to retry", throwable);
         }
 
+    }
+    
+    public Document serializeFields(Document value) {
+    	DocumentObjectGenerator generator = new DocumentObjectGenerator();
+        try {
+               objectMapper.writerWithView(Session.class).writeValue(generator, value);
+           } catch (JsonMappingException e) {
+               throw new MongoJsonMappingException(e);
+           } catch (IOException e) {
+               // This shouldn't happen
+               throw new MongoException("Unknown error occurred converting BSON to object", e);
+           }
+        Document document =  generator.getDocument();
+        return document;
     }
 }
