@@ -20,7 +20,7 @@ import java.util.UUID;
  */
 @Getter
 @ToString
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@AllArgsConstructor
 public class Session {
 
     /**

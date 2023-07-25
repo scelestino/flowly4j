@@ -1,0 +1,20 @@
+<persistence xmlns="http://java.sun.com/xml/ns/persistence"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd"
+             version="2.0">
+
+    <persistence-unit name="com.flowly4j.examplemariadb">
+        <description>Hibernate EntityManager Demo</description>
+        <class>com.flowly4j.mariadb.SessionWrapper</class>
+        <class>com.flowly4j.mariadb.ExecutionWrapper</class>
+        <class>com.flowly4j.mariadb.AttemptsWrapper</class>
+        <exclude-unlisted-classes>true</exclude-unlisted-classes>
+        <provider>org.hibernate.c3p0.internal.C3P0ConnectionProvider</provider>
+        <properties>
+            <property name="javax.persistence.jdbc.driver" value="com.mysql.jdbc.Driver"/>
+            <property name="javax.persistence.jdbc.url" value="jdbc:mysql://localhost:3306/test"/>
+            <property name="javax.persistence.jdbc.user" value="root"/>
+            <property name="javax.persistence.jdbc.password" value="0507"/>
+        </properties>
+    </persistence-unit>
+</persistence>

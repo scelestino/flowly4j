@@ -14,7 +14,7 @@ import java.time.Instant;
  */
 @Getter
 @ToString
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@AllArgsConstructor
 public class Execution {
 
     /**

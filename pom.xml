@@ -28,7 +28,9 @@
     <modules>
         <module>flowly4j-core</module>
         <module>flowly4j-mongodb</module>
+        <module>flowly4j-mariadb</module>
         <module>flowly4j-example</module>
+        <module>flowly4j-examplemariadb</module>
     </modules>
 
     <dependencyManagement>
