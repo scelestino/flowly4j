@@ -6,9 +6,9 @@ import com.flowly4j.core.session.Session;
 import io.vavr.collection.Iterator;
 import io.vavr.control.Option;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.PersistenceException;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.PersistenceException;
 
 public class MariaDBRepository implements Repository {
 
@@ -30,7 +30,7 @@ public class MariaDBRepository implements Repository {
             EntityManager entityManager = entityManagerFactory.createEntityManager();
             SessionWrapper session = entityManager.find(SessionWrapper.class, sessionId);
             entityManager.close();
-            return Option.of(session.toSession());
+            return Option.of(session.toSession(objectMapper));
         } catch (Throwable throwable) {
             throw new PersistenceException("Error getting session " + sessionId, throwable);
         }
@@ -38,7 +38,17 @@ public class MariaDBRepository implements Repository {
 
     @Override
     public Session insert(Session session) {
-        return null;
+        try {
+            SessionWrapper sessionWrapper = new SessionWrapper(session, objectMapper);
+            EntityManager entityManager = entityManagerFactory.createEntityManager();
+            entityManager.getTransaction().begin();
+            entityManager.persist(sessionWrapper);
+            entityManager.getTransaction().commit();
+            entityManager.close();
+            return session;
+        } catch (Throwable throwable) {
+            throw new PersistenceException("Error inserting session " + session.getSessionId(), throwable);
+        }
     }
 
     @Override

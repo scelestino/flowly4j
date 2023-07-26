@@ -4,7 +4,7 @@ import com.flowly4j.core.session.Attempts;
 import io.vavr.control.Option;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.time.Instant;
 
 @NoArgsConstructor

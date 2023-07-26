@@ -4,7 +4,7 @@ import com.flowly4j.core.session.Execution;
 import io.vavr.control.Option;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.time.Instant;
 
 @NoArgsConstructor
@@ -18,16 +18,16 @@ public class ExecutionWrapper {
     private Instant at;
 
     @Column(name = "execution_message")
-    private Option<String> message; // TODO SOLN: Funciona bien el Option? No deberia ser String?
+    private String message; // TODO SOLN: Funciona bien el Option? No deberia ser String? si dejas un option se guarda el hexadecimal
 
     public ExecutionWrapper(Execution execution) {
         this.taskId = execution.getTaskId();
         this.at = execution.getAt();
-        this.message = execution.getMessage();
+        this.message = execution.getMessage().getOrNull();
     }
 
     public Execution toExecution() {
-        return new Execution(taskId, at, message);
+        return new Execution(taskId, at, Option.of(message));
     }
 
 }
