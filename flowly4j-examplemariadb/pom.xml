@@ -34,15 +34,16 @@
         <!-- JDBC DataSources -->
         <dependency>
             <groupId>org.hibernate</groupId>
+            <!-- TODO SOLN: no conviene usar el core? -->
             <artifactId>hibernate-c3p0</artifactId>
-            <version>5.1.0.Final</version>
+            <version>6.2.6.Final</version>
         </dependency>
 
         <!-- MySql database -->
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
-            <version>5.1.38</version>
+            <version>8.0.28</version>
         </dependency>
         <!-- MySql database -->
 

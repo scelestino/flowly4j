@@ -4,17 +4,17 @@
              version="2.0">
 
     <persistence-unit name="com.flowly4j.examplemariadb">
-        <description>Hibernate EntityManager Demo</description>
+        <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
         <class>com.flowly4j.mariadb.SessionWrapper</class>
         <class>com.flowly4j.mariadb.ExecutionWrapper</class>
         <class>com.flowly4j.mariadb.AttemptsWrapper</class>
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
-        <provider>org.hibernate.c3p0.internal.C3P0ConnectionProvider</provider>
         <properties>
-            <property name="javax.persistence.jdbc.driver" value="com.mysql.jdbc.Driver"/>
-            <property name="javax.persistence.jdbc.url" value="jdbc:mysql://localhost:3306/test"/>
-            <property name="javax.persistence.jdbc.user" value="root"/>
-            <property name="javax.persistence.jdbc.password" value="0507"/>
-        </properties>
+            <property name="jakarta.persistence.jdbc.driver" value="com.mysql.jdbc.Driver"/>
+            <property name="jakarta.persistence.jdbc.url" value="jdbc:mysql://localhost:3306/test"/>
+            <property name="jakarta.persistence.jdbc.user" value="root"/>
+            <property name="jakarta.persistence.jdbc.password" value="0507"/>
+            <property name="hibernate.hbm2ddl.auto" value = "create"/>
+    </properties>
     </persistence-unit>
 </persistence>
