@@ -105,7 +105,8 @@ public class MongoDBRepository implements Repository {
                    throw new MongoException("Unknown error occurred converting BSON to object", e);
                }
             Document document =  generator.getDocument();
-            
+
+            //TODO SOLN: revisar logica de versionado y ver si es necesaria de replica en hibernate?
             document.remove("version");
 
             val update = new Document("$set", document);
