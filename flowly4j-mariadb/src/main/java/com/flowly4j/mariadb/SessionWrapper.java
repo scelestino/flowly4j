@@ -64,7 +64,7 @@ public class SessionWrapper {
                 //TODO SOLN: aca deberiamos hacer alguna transformacion?
                 io.vavr.collection.HashMap.ofAll(this.variables).mapValues(v -> {
                     try {
-                        return objectMapper.readValue(v, Product.class);
+                        return objectMapper.readValue(v, Object.class);
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }

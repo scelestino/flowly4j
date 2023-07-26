@@ -2,11 +2,13 @@ package com.flowly4j.examplemariadb;
 
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
+import com.flowly4j.core.serialization.Serializer;
 import com.flowly4j.core.session.Attempts;
 import com.flowly4j.core.session.Execution;
 import com.flowly4j.core.session.Session;
@@ -55,15 +57,18 @@ public class App {
         Attempts attempts = new Attempts(1, Instant.now(), Option.of(Instant.now()));
 
         repository.insert(new Session(
-                "sessionId5", HashMap.of("variable_uno", Product.of("transactionId", "type", "id")), Option.of(execution), Option.of(attempts),
-                Instant.now(), Status.FINISHED, 1L));
+                "sessionId5", HashMap.of("variable_uno",
+                Product.of("transactionId", "type", "id")), Option.of(execution), Option.of(attempts),
+                Instant.now(),
+                Status.FINISHED, 1L));
 
         Option<Session> s = repository.get("sessionId5");
         s.forEach(System.out::println);
 
+        val serializer = new Serializer(objectMapperContext);
         s.forEach(session -> {
             session.getVariables().forEach((k, v) -> {
-                Product p = (Product) v;
+                Product p = serializer.deepCopy(v, new TypeReference<Product>() {});
                 System.out.println(p.getTransactionId());
                 System.out.println(p.getId());
                 System.out.println(p.getType());
