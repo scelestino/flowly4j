@@ -18,7 +18,7 @@ public class ExecutionWrapper {
     private Instant at;
 
     @Column(name = "execution_message")
-    private String message; // TODO SOLN: Funciona bien el Option? No deberia ser String? si dejas un option se guarda el hexadecimal
+    private String message;
 
     public ExecutionWrapper(Execution execution) {
         this.taskId = execution.getTaskId();

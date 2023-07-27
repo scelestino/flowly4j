@@ -21,16 +21,15 @@ public class SessionWrapper {
     @Column(name = "session_id")
     private String sessionId;
 
+    //TODO SOLN: cuando actulizas las variables deberia borrar las viejas de la tabla session_variables
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "session_variables", joinColumns = @JoinColumn(name = "session_id"))
     @Column(name = "variable_value")
-    private Map<String, String> variables; //TODO SOLN: que se va a guardar en variable_value, un json?
-    //La solucion que planteo Mariano Alvarez fue guardar un Map<String,String> y dsp serializar ese objeto
-    // Para no modificar la implementacion de flowly, deberiamos siempre devolver objetos en las variables
+    private Map<String, String> variables;
 
-    private ExecutionWrapper lastExecution; // TODO SOLN: OPTION
+    private ExecutionWrapper lastExecution;
 
-    private AttemptsWrapper attempts; // TODO SOLN: OPTION
+    private AttemptsWrapper attempts;
 
     @Column(name = "create_at")
     private Instant createAt;
@@ -43,7 +42,6 @@ public class SessionWrapper {
 
     public SessionWrapper(Session session, ObjectMapper objectMapper) {
         this.sessionId = session.getSessionId();
-        //TODO SOLN: toString no deberia ser deberia usarse el object mapper o algo
         this.variables = session.getVariables().mapValues(v -> {
             try {
                 return objectMapper.writeValueAsString(v);
@@ -61,7 +59,6 @@ public class SessionWrapper {
     public Session toSession(ObjectMapper objectMapper) {
         return new Session(
                 sessionId,
-                //TODO SOLN: aca deberiamos hacer alguna transformacion?
                 io.vavr.collection.HashMap.ofAll(this.variables).mapValues(v -> {
                     try {
                         return objectMapper.readValue(v, Object.class);

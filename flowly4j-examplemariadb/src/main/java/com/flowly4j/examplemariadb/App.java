@@ -57,18 +57,29 @@ public class App {
         Attempts attempts = new Attempts(1, Instant.now(), Option.of(Instant.now()));
 
         repository.insert(new Session(
-                "sessionId5", HashMap.of("variable_uno",
-                Product.of("transactionId", "type", "id")), Option.of(execution), Option.of(attempts),
+                "sessionId", HashMap.of("variable_uno",
+                Product.of("transactionId", "type", "id"),
+                "variable_dos",
+                Product.of("transactionId2", "type2", "id2")), Option.of(execution), Option.of(attempts),
                 Instant.now(),
                 Status.FINISHED, 1L));
 
-        Option<Session> s = repository.get("sessionId5");
+        repository.insert(new Session(
+                "sessionId2", HashMap.of("variable_uno",
+                Product.of("transactionId", "type", "id"),
+                "variable_dos",
+                Product.of("transactionId2", "type2", "id2")), Option.of(execution), Option.of(attempts),
+                Instant.now(),
+                Status.FINISHED, 1L));
+
+        Option<Session> s = repository.get("sessionId");
         s.forEach(System.out::println);
 
         val serializer = new Serializer(objectMapperContext);
         s.forEach(session -> {
             session.getVariables().forEach((k, v) -> {
-                Product p = serializer.deepCopy(v, new TypeReference<Product>() {});
+                Product p = serializer.deepCopy(v, new TypeReference<Product>() {
+                });
                 System.out.println(p.getTransactionId());
                 System.out.println(p.getId());
                 System.out.println(p.getType());
