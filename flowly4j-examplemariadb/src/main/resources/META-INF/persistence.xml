@@ -14,7 +14,7 @@
             <property name="jakarta.persistence.jdbc.url" value="jdbc:mysql://localhost:3306/test"/>
             <property name="jakarta.persistence.jdbc.user" value="root"/>
             <property name="jakarta.persistence.jdbc.password" value="0507"/>
-            <property name="hibernate.hbm2ddl.auto" value = "create"/>
+            <property name="hibernate.hbm2ddl.auto" value = "create"/> <!--> TODO SOLN: para desarrollo<-->
     </properties>
     </persistence-unit>
 </persistence>

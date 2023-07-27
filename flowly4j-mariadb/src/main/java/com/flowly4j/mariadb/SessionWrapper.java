@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flowly4j.core.session.Session;
 import com.flowly4j.core.session.Status;
 import io.vavr.control.Option;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import jakarta.persistence.*;
@@ -16,12 +17,12 @@ import java.util.Map;
 @Entity
 @Table(name = "sessions")
 @NoArgsConstructor
+@Getter
 public class SessionWrapper {
     @Id
     @Column(name = "session_id")
     private String sessionId;
 
-    //TODO SOLN: cuando actulizas las variables deberia borrar las viejas de la tabla session_variables
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "session_variables", joinColumns = @JoinColumn(name = "session_id"))
     @Column(name = "variable_value")
@@ -66,8 +67,8 @@ public class SessionWrapper {
                         throw new RuntimeException(e);
                     }
                 }),
-                Option.of(lastExecution.toExecution()),
-                Option.of(attempts.toAttempts()),
+                Option.of(lastExecution).map(ExecutionWrapper::toExecution),
+                Option.of(attempts).map(AttemptsWrapper::toAttempts),
                 createAt,
                 status,
                 version
