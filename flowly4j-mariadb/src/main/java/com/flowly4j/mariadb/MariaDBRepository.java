@@ -30,7 +30,7 @@ public class MariaDBRepository implements Repository {
     public Option<Session> get(String sessionId) {
         try {
 
-            EntityManager entityManager = entityManagerFactory.createEntityManager();
+            EntityManager entityManager = getEntityManager();
             SessionWrapper session = entityManager.find(SessionWrapper.class, sessionId);
             entityManager.close();
 
@@ -41,12 +41,17 @@ public class MariaDBRepository implements Repository {
         }
     }
 
+    private EntityManager getEntityManager() {
+        //TODO SOLN: esta bien crear uno por cada consulta y luego cerrarlo?
+        return entityManagerFactory.createEntityManager();
+    }
+
     @Override
     public Session insert(Session session) {
         try {
 
             SessionWrapper sessionWrapper = new SessionWrapper(session, objectMapper);
-            EntityManager entityManager = entityManagerFactory.createEntityManager();
+            EntityManager entityManager = getEntityManager();
             entityManager.getTransaction().begin();
             entityManager.persist(sessionWrapper);
             entityManager.getTransaction().commit();
@@ -64,7 +69,7 @@ public class MariaDBRepository implements Repository {
         try {
 
             SessionWrapper sessionWrapper = new SessionWrapper(session, objectMapper);
-            EntityManager entityManager = entityManagerFactory.createEntityManager();
+            EntityManager entityManager = getEntityManager();
             entityManager.getTransaction().begin();
             SessionWrapper updatedSession = entityManager.merge(sessionWrapper);
             entityManager.getTransaction().commit();
@@ -83,7 +88,7 @@ public class MariaDBRepository implements Repository {
     public Iterator<String> getToRetry() {
         try {
 
-            EntityManager entityManager = entityManagerFactory.createEntityManager();
+            EntityManager entityManager = getEntityManager();
             CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
             CriteriaQuery<String> criteriaQuery = criteriaBuilder.createQuery(String.class);
             Root<SessionWrapper> root = criteriaQuery.from(SessionWrapper.class);
@@ -94,8 +99,10 @@ public class MariaDBRepository implements Repository {
                             criteriaBuilder.lessThanOrEqualTo(root.get("attempts").get("nextRetry"), Instant.now())
                     )
             ).orderBy(criteriaBuilder.asc(root.get("attempts").get("nextRetry")));
+            Iterator<String> sessionsToRetry = Iterator.ofAll(entityManager.createQuery(criteriaQuery).getResultList());
+            entityManager.close();
 
-            return Iterator.ofAll(entityManager.createQuery(criteriaQuery).getResultList());
+            return sessionsToRetry;
 
         } catch (Throwable throwable) {
             throw new PersistenceException("Error getting sessions to retry", throwable);
