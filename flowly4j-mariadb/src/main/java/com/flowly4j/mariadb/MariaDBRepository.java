@@ -24,9 +24,6 @@ public class MariaDBRepository implements Repository {
     public MariaDBRepository(EntityManagerFactory entityManagerFactory, ObjectMapper objectMapper) {
         this.entityManagerFactory = entityManagerFactory;
         this.objectMapper = objectMapper;
-        //TODO SOLN: revisar para que sirve el mixin y si es necesario en hibernate
-        // como usamos un wrapper entiendo que no es necesario
-        //this.objectMapper.addMixIn(Session.class, SessionMixIn.class);
     }
 
     @Override

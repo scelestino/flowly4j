@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flowly4j.core.session.Session;
 import com.flowly4j.core.session.Status;
+import io.vavr.collection.HashMap;
 import io.vavr.control.Option;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -60,7 +61,7 @@ public class SessionWrapper {
     public Session toSession(ObjectMapper objectMapper) {
         return new Session(
                 sessionId,
-                io.vavr.collection.HashMap.ofAll(variables).mapValues(v -> {
+                HashMap.ofAll(variables).mapValues(v -> {
                     try {
                         return objectMapper.readValue(v, Object.class);
                     } catch (IOException e) {
