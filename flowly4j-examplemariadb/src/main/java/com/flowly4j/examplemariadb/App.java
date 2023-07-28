@@ -26,6 +26,7 @@ import io.vavr.jackson.datatype.VavrModule;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Persistence;
 import lombok.val;
+import org.hibernate.SessionFactory;
 
 import java.time.Instant;
 
@@ -150,19 +151,65 @@ public class App {
     public static void main(String[] args) {
         //TODO SOLN: si usamos el mismo object mapper para repo y serializer funciona, Dory usa dos distintos
 
-        val objectMapperRepository = new ObjectMapper();
+        val objectMapperContext = new ObjectMapper();
+        objectMapperContext.registerModule(new JavaTimeModule());
+        objectMapperContext.registerModule(new ParameterNamesModule(JsonCreator.Mode.PROPERTIES));
+        objectMapperContext.registerModule(new VavrModule(new VavrModule.Settings().deserializeNullAsEmptyCollection(true)));
+        objectMapperContext.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        objectMapperContext.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
+
+        /*val objectMapperRepository = new ObjectMapper();
         objectMapperRepository.registerModule(new CustomDateModule());
         objectMapperRepository.registerModule(new ParameterNamesModule(JsonCreator.Mode.PROPERTIES));
         objectMapperRepository.registerModule(new VavrModule(new VavrModule.Settings().deserializeNullAsEmptyCollection(true)));
         objectMapperRepository.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        objectMapperRepository.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
+        objectMapperRepository.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);*/
 
         EntityManagerFactory entityManagerFactory =
                 Persistence.createEntityManagerFactory("com.flowly4j.examplemariadb");
 
-        val repository = new MariaDBRepository(entityManagerFactory, objectMapperRepository);
+        val repository = new MariaDBRepository(entityManagerFactory, objectMapperContext);
 
-        val factory = new ExecutionContext.ExecutionContextFactory(new Serializer(objectMapperRepository));
+        val factory = new ExecutionContext.ExecutionContextFactory(new Serializer(objectMapperContext));
+
+        System.out.println(repository.getToRetry().toList());
+
+        Workflow workflow = new WorkflowA(repository, factory);
+
+        String sessionId = workflow.init(Param.of(KEY1, "asd"), Param.of(KEY2, 123), Param.of(KEY6, Instant.EPOCH));
+
+        val result = workflow.execute(sessionId);
+
+        System.out.println(result);
+
+    }
+
+    public static void mainTestSessionFactory(String[] args) {
+        //TODO SOLN: si usamos el mismo object mapper para repo y serializer funciona, Dory usa dos distintos
+
+        val objectMapperContext = new ObjectMapper();
+        objectMapperContext.registerModule(new JavaTimeModule());
+        objectMapperContext.registerModule(new ParameterNamesModule(JsonCreator.Mode.PROPERTIES));
+        objectMapperContext.registerModule(new VavrModule(new VavrModule.Settings().deserializeNullAsEmptyCollection(true)));
+        objectMapperContext.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        objectMapperContext.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
+
+        /*val objectMapperRepository = new ObjectMapper();
+        objectMapperRepository.registerModule(new CustomDateModule());
+        objectMapperRepository.registerModule(new ParameterNamesModule(JsonCreator.Mode.PROPERTIES));
+        objectMapperRepository.registerModule(new VavrModule(new VavrModule.Settings().deserializeNullAsEmptyCollection(true)));
+        objectMapperRepository.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        objectMapperRepository.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);*/
+
+        EntityManagerFactory entityManagerFactory =
+                Persistence.createEntityManagerFactory("com.flowly4j.examplemariadb");
+
+        org.hibernate.Session session = entityManagerFactory.createEntityManager().unwrap(org.hibernate.Session.class);
+        SessionFactory sessionFactory = session.getSessionFactory();
+
+        val repository = new MariaDBRepository(sessionFactory, objectMapperContext);
+
+        val factory = new ExecutionContext.ExecutionContextFactory(new Serializer(objectMapperContext));
 
         System.out.println(repository.getToRetry().toList());
 

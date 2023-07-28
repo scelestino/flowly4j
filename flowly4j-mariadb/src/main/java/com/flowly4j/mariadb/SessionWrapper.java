@@ -5,10 +5,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flowly4j.core.session.Session;
 import com.flowly4j.core.session.Status;
 import io.vavr.control.Option;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import jakarta.persistence.*;
 
 import java.io.IOException;
 import java.time.Instant;
@@ -25,6 +24,7 @@ public class SessionWrapper {
 
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "session_variables", joinColumns = @JoinColumn(name = "session_id"))
+    @MapKeyColumn(name = "variable_key")
     @Column(name = "variable_value")
     private Map<String, String> variables;
 
@@ -60,7 +60,7 @@ public class SessionWrapper {
     public Session toSession(ObjectMapper objectMapper) {
         return new Session(
                 sessionId,
-                io.vavr.collection.HashMap.ofAll(this.variables).mapValues(v -> {
+                io.vavr.collection.HashMap.ofAll(variables).mapValues(v -> {
                     try {
                         return objectMapper.readValue(v, Object.class);
                     } catch (IOException e) {
