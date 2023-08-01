@@ -2,7 +2,6 @@ package com.flowly4j.examplemariadb;
 
 
 import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -12,21 +11,11 @@ import com.flowly4j.core.Workflow;
 import com.flowly4j.core.context.ExecutionContext;
 import com.flowly4j.core.input.Param;
 import com.flowly4j.core.serialization.Serializer;
-import com.flowly4j.core.session.Attempts;
-import com.flowly4j.core.session.Execution;
-import com.flowly4j.core.session.Session;
-import com.flowly4j.core.session.Status;
 import com.flowly4j.mariadb.MariaDBRepository;
-import com.flowly4j.mariadb.Product;
-import com.flowly4j.mongodb.CustomDateModule;
-import io.vavr.collection.HashMap;
-import io.vavr.collection.Iterator;
-import io.vavr.control.Option;
 import io.vavr.jackson.datatype.VavrModule;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Persistence;
 import lombok.val;
-import org.hibernate.SessionFactory;
 
 import java.time.Instant;
 
