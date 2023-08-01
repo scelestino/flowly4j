@@ -37,15 +37,7 @@ public class App {
         objectMapperContext.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         objectMapperContext.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
 
-        /*val objectMapperRepository = new ObjectMapper();
-        objectMapperRepository.registerModule(new CustomDateModule());
-        objectMapperRepository.registerModule(new ParameterNamesModule(JsonCreator.Mode.PROPERTIES));
-        objectMapperRepository.registerModule(new VavrModule(new VavrModule.Settings().deserializeNullAsEmptyCollection(true)));
-        objectMapperRepository.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        objectMapperRepository.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);*/
-
-        EntityManagerFactory entityManagerFactory = Persistence
-                .createEntityManagerFactory("com.flowly4j.examplemariadb");
+        EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("com.flowly4j.examplemariadb");
 
         val repository = new MariaDBRepository(entityManagerFactory, objectMapperContext);
 
