@@ -24,7 +24,6 @@ public class MariaDBRepository implements Repository {
     public MariaDBRepository(EntityManagerFactory entityManagerFactory, ObjectMapper objectMapper) {
         this.entityManagerFactory = entityManagerFactory;
         this.objectMapper = objectMapper;
-        //TODO SOLN: crear indice
     }
 
     @Override
