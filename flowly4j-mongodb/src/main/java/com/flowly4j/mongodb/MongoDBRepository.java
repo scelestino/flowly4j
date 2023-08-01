@@ -106,7 +106,6 @@ public class MongoDBRepository implements Repository {
                }
             Document document =  generator.getDocument();
 
-            //TODO SOLN: revisar logica de versionado y ver si es necesaria de replica en hibernate?
             document.remove("version");
 
             val update = new Document("$set", document);

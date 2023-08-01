@@ -28,7 +28,7 @@ public class ExecutionTaskA extends ExecutionTask {
         executionContext.set(KEY1, "esta es una prueba");
         executionContext.set(KEY2, 123);
         executionContext.set(KEY4, Person.of("juan", 123, Instant.now()));
-        throw new CustomException("se rompe");//TODO SOLN: esta bien comentarla para probar todo ?
+        throw new CustomException("se rompe");
     }
 
     @Override
